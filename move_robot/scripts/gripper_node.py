@@ -10,20 +10,20 @@ class GripperNode:
         self.gripper = Gripper(service)
         rospy.init_node('gripper_node', anonymous=True)
         self.subscriber = rospy.Subscriber('/gripper/command', String, self.callback, queue_size=1)
-        self.publisher_finish = rospy.Publisher('/go_to_pose/finish', Bool, queue_size=10)
+        self.publisher_finish = rospy.Publisher('/go_to_pose/finish', Bool, queue_size=10)#
 	    self.time_wait = 0
         print('Created gripper_node')
         rospy.spin()
 
 
     def callback(self, data):
-        self.publisher_finish.publish(False)
+        self.publisher_finish.publish(False)#
         if data.data == 'open':
             self.gripper.open()
-            self.publisher_finish.publish(True)
+            self.publisher_finish.publish(True)#
         elif data.data == 'close':
             self.gripper.close()
-            self.publisher_finish.publish(True)
+            self.publisher_finish.publish(True)#
         elif data.data == 'detect':
             if self.gripper.grip_detect():
                 print 'grasp success'
