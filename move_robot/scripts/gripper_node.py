@@ -3,6 +3,8 @@
 import rospy
 from Gripper import Gripper
 from std_msgs.msg import String
+from std_msgs.msg import Bool
+import time
 
 class GripperNode:
 
@@ -11,7 +13,7 @@ class GripperNode:
         rospy.init_node('gripper_node', anonymous=True)
         self.subscriber = rospy.Subscriber('/gripper/command', String, self.callback, queue_size=1)
         self.publisher_finish = rospy.Publisher('/go_to_pose/finish', Bool, queue_size=10)#
-	    self.time_wait = 0
+        self.time_wait = 0
         print('Created gripper_node')
         rospy.spin()
 
@@ -20,9 +22,11 @@ class GripperNode:
         self.publisher_finish.publish(False)#
         if data.data == 'open':
             self.gripper.open()
+            time.sleep(1)
             self.publisher_finish.publish(True)#
         elif data.data == 'close':
             self.gripper.close()
+            time.sleep(1)
             self.publisher_finish.publish(True)#
         elif data.data == 'detect':
             if self.gripper.grip_detect():

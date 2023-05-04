@@ -10,6 +10,7 @@ from math import pi
 from std_msgs.msg import String
 from std_msgs.msg import Bool
 from moveit_commander.conversions import pose_to_list
+import time
 
 class Mover:
     def __init__(self):
@@ -79,13 +80,14 @@ class Mover:
         #self.move_group.set_pose_target([0.21, 0.32, 0.205, -0.1 ,-3.1, 0.0 ])
 
         plan = self.move_group.go(wait=True)
-        self.publisher_finish.publish(True)
+	
         # Calling `stop()` ensures that there is no residual movement
         self.move_group.stop()
         # It is always good to clear your targets after planning with poses.
         # Note: there is no equivalent function for clear_joint_value_targets()
         self.move_group.clear_pose_targets()    
-
+        time.sleep(1)
+        self.publisher_finish.publish(True)
     
         
 	
