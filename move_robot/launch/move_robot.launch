@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <launch>
-  <node name="go_to_pose" pkg="move_robot" type="go_to_pose" />
-  <node name="gipper_node" pkg="move_robot" type="gipper_node" />
+  <node pkg="move_robot" name="go_to_pose"  type="go_to_pose.py" />
+  <node pkg="move_robot" name="gripper_node" type="gripper_node.py" />
 </launch>

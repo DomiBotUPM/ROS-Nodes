@@ -6,6 +6,7 @@ import rospy
 import moveit_commander
 import moveit_msgs.msg
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Pose
 from math import pi
 from std_msgs.msg import String
 from std_msgs.msg import Bool
@@ -14,10 +15,12 @@ import time
 
 class Mover:
     def __init__(self):
-
+	
+        self.publisher_current_pose = rospy.Publisher('/move_robot/current_pose', Pose, queue_size=10)
+                
         moveit_commander.roscpp_initialize(sys.argv)
 
-        robot = moveit_commander.RobotCommander()
+        self.robot = moveit_commander.RobotCommander()
 
         scene = moveit_commander.PlanningSceneInterface()
 
@@ -33,7 +36,7 @@ class Mover:
         
         self.publisher_finish = rospy.Publisher('/go_to_pose/finish', Bool, queue_size=10)
        # self.publisher_finish.publish(False)
-
+        '''
         # We can get the name of the reference frame for this robot:
         planning_frame = self.move_group.get_planning_frame()
         print("============ Planning frame: %s" % planning_frame)
@@ -43,14 +46,15 @@ class Mover:
         print("============ End effector link: %s" % eef_link)
 
         # We can get a list of all the groups in the robot:
-        group_names = robot.get_group_names()
-        print("============ Available Planning Groups:", robot.get_group_names())
+        group_names = self.robot.get_group_names()
+        print("============ Available Planning Groups:", self.robot.get_group_names())
 
         # Sometimes for debugging it is useful to print the entire state of the
         # robot:
-        print("============ Printing robot state")
-        print(robot.get_current_state())
+        print("")print("============ Printing robot state")
+        print(self.robot.get_current_state())
         print("")
+        '''
         self.subscriber = rospy.Subscriber('/go_to_pose/goal', Twist, self.pose_callback, queue_size=1)
 
     def pose_callback(self, data):
@@ -88,7 +92,15 @@ class Mover:
         self.move_group.clear_pose_targets()    
         time.sleep(1)
         self.publisher_finish.publish(True)
-    
+        
+        #print("============ Printing robot state")
+        #state=self.robot.get_current_state()
+        state=self.move_group.get_current_pose().pose
+        #print(str(state))
+        self.publisher_current_pose.publish(state)
+        #print(state.joint_state.position)
+        
+    	
         
 	
 if __name__ == '__main__':

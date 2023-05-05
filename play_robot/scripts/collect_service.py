@@ -23,7 +23,7 @@ class collect_node():
 
 if __name__ == "__main__":
 
-    rospy.init_node('collect_service_node') #_node
+    rospy.init_node('collect_service') #_node
     obj=collect_node()
     try:
         rospy.spin()

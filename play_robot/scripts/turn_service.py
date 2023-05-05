@@ -28,7 +28,7 @@ class turn_node():
 
 if __name__ == "__main__":
 
-    rospy.init_node('turn_service_node') #_node
+    rospy.init_node('turn_service') #_node
     obj=turn_node()
     try:
         rospy.spin()

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+    <include file="$(find move_robot)/launch/move_robot.launch"/>
+    <include file="$(find play_robot)/launch/play_robot.launch"/>
+    <include file="$(find start_up)/launch/connection.launch"/>
+    
+</launch>

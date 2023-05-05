@@ -6,6 +6,7 @@ import rospy
 import moveit_commander
 import moveit_msgs.msg
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Pose
 from math import pi
 from std_msgs.msg import String
 from std_msgs.msg import Bool
@@ -23,8 +24,12 @@ class few_poses:
         global turno
         turno=""
     # conjuntos de acciones
-        self.poses=([0.3,0.1,0.3,-3.1,-0.1,0],[0.3,0.2,0.3,-3.1,-0.1,0],"open",[0.3,0.3,0.3,-3.1,-0.1,0],"close","open","close",[0.3,0.2,0.3,-3.1,-0.1,0])
-        
+        #self.poses=([0.3,0.1,0.3,-3.1,-0.1,0],[0.3,0.2,0.3,-3.1,-0.1,0],"open",[0.3,0.3,0.3,-3.1,-0.1,0],"close","open","close",[0.3,0.2,0.3,-3.1,-0.1,0],"open","close" ,[0.3,0.2,0.3,-3.14,0,1.6])
+
+	self.poses=([0.3,0.2,0.3,-3.14,0,0.3],[0.3,0.0,0.3,-3.14,0,1.9],[0.3,0.2,0.3,-3.14,0,-1.3],[0.3,0.2,0.3,-3.14,0,-2.9])#,[0.3,0.2,0.3,-3.14,0,-3.14])
+        #self.poses=([0.3,0.1,0.3,-3.1,-0.1,0],[0.3,0.25,0.38,-3.2,0.5,0.3])
+
+	#buena posicion [0.3,0.0,0.3,-3.14,0,1.9]
         self.publisher_pose = rospy.Publisher('/go_to_pose/goal', Twist, queue_size=10)
            
         self.publisher_gripper = rospy.Publisher('/gripper/command', String, queue_size=10)
@@ -34,6 +39,8 @@ class few_poses:
         self.subscriber_finish = rospy.Subscriber('/go_to_pose/finish', Bool, self.pose_callback, queue_size=1) 
 	
         self.subscriber_turn = rospy.Subscriber('/play_robot/turn', String, self.turn_callback, queue_size=1) 
+	
+
 
         self.send_pose = Twist()
 

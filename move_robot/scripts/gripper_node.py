@@ -10,7 +10,8 @@ class GripperNode:
 
     def __init__(self, service='/ur_hardware_interface/set_io'):
         self.gripper = Gripper(service)
-        rospy.init_node('gripper_node', anonymous=True)
+        rospy.init_node('gripper_node') #, anonymous=True
+
         self.subscriber = rospy.Subscriber('/gripper/command', String, self.callback, queue_size=1)
         self.publisher_finish = rospy.Publisher('/go_to_pose/finish', Bool, queue_size=10)#
         self.time_wait = 0
