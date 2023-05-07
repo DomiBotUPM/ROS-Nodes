@@ -51,6 +51,7 @@ class few_poses:
         global turno
         turno= data.data
         
+	
 
     def pose_callback(self, data):
 

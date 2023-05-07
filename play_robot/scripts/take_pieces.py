@@ -22,13 +22,15 @@ global numpiezas
 numpiezas=7
 global msg
 
+#global valores_piezas
+#valores_piezas=[[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0]]
 
 class pieces:
     def __init__(self):
 
         global contador_piezas
         global numpiezas
-        
+        self.valores_piezas=[[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0]]#cambio aqui
 	self.posiciones_piezas_robot=([0,0,0,0,0,0],[1,1,1,1,1,1],[2,2,2,2,2,2],[3,3,3,3,3,3],[4,4,4,4,4,4],[5,5,5,5,5,5])
 	#([0.3,0.2,0.3,-3.14,0,0.3],[0.3,0.0,0.3,-3.14,0,1.9],[0.3,0.2,0.3,-3.14,0,-1.3],[0.3,0.2,0.3,-3.14,0,-2.9],[0.3,0.2,0.3,-3.14,0,-2.9],[0.3,0.2,0.3,-3.14,0,-2.9])
         #self.posicion_camara= [8,8,8,8,8,8]
@@ -97,7 +99,7 @@ class pieces:
                         self.posicion_pieza_robot.angular.x=self.posiciones_piezas_robot[contador_piezas][3]
                         self.posicion_pieza_robot.angular.y=self.posiciones_piezas_robot[contador_piezas][4]
                         self.posicion_pieza_robot.angular.z=self.posiciones_piezas_robot[contador_piezas][5]
-
+                        
                         print(str(self.posicion_pieza_robot))
 
 
@@ -107,6 +109,8 @@ class pieces:
 
                         self.pieza_detectada = False
                         print(str(self.trayectoria_jugada))
+                        
+                        self.valores_piezas[contador_piezas]=[True,self.valor_izquierda_arriba,self.valor_derecha_abajo]
                         self.publisher_finish.publish(True)
 
                         #time.sleep(1)
@@ -121,6 +125,7 @@ class pieces:
                     contador=0
         else:
             print("Finalizada la recogida de la pieza")
+            print(str(self.valores_piezas))
         #time.sleep(500)
 
         #rospy.signal_shutdown("Shutting Down")
@@ -137,6 +142,11 @@ class pieces:
         self.posicion_pieza.angular.x= -3.14 #self.poses[contador][3]
         self.posicion_pieza.angular.y= 0.0 #self.poses[contador][4]
         self.posicion_pieza.angular.z= 0.3 #self.poses[contador][5]
+        
+        #tomar valores para 
+        self.valor_izquierda_arriba=1 #cambio aqui
+        self.valor_derecha_abajo=1    #cambio aqui
+
         #print(str(self.posicion_pieza))
         self.pieza_detectada = True
 	
@@ -150,7 +160,7 @@ class pieces:
         #print("El valor es " + str(data.data == 1) + " con data = " +str(data.data))
 
         if(contador_movimientos< len(self.trayectoria_jugada)):
-            if (data.data == True):
+            if (data.data == True and self.trayectoria_jugada !=None): #cambio aqui
                     #print (contador)
                         
                     if(isinstance(self.trayectoria_jugada[contador_movimientos], str)): #si es open o close
@@ -178,9 +188,12 @@ class pieces:
                     rospy.loginfo(rospy.get_caller_id() + " Esperando")
         else:
             #self.publisher_finish.publish(False)
+            self.trayectoria_jugada=None#cambio aqui
+            
             self.publisher_jugada.publish(True)
             contador_movimientos=0
             print("jugada realizada")
+            print(str(self.valores_piezas))
             #time.sleep(500)
 
             #rospy.signal_shutdown("Shutting Down")
