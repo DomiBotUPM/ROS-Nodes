@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 from geometry_msgs.msg import Twist
-
+import sys
+import copy
+import rospy
+from std_msgs.msg import String,Int32,Int32MultiArray,MultiArrayLayout,MultiArrayDimension, Float64MultiArray
 
 
 poses=([0.3,0.1,0.3,-3.1,-0.1,0],[0.3,0.2,0.3,-3.1,-0.1,0],"open",[0.3,0.3,0.3,-3.1,-0.1,0],"close")
@@ -35,3 +38,15 @@ print(poses)
 
 
 print(poses.split(","))'''
+
+rospy.init_node('tuple') #_node
+array = [[True, 2, 6], [True, 0, 2], [True, 4, 5], [True, 2, 3], [True, 5, 0], [True, 3, 3], [True, 0, 2]]
+pub = rospy.Publisher('/posiciones_piezas', Float64MultiArray, queue_size=10)
+pubstr = rospy.Publisher('/posiciones_piezas_str', String, queue_size=10)
+data_to_send = Float64MultiArray()  # the data to be sent, initialise the array
+data_to_send.data = array # assign the array with the value you want to send
+pub.publish(data_to_send)
+pubstr.publish(str(data_to_send))
+print(array)
+print(data_to_send)
+print(str(data_to_send))
