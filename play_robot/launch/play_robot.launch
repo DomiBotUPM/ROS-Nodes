@@ -2,6 +2,6 @@
 <launch>
   <node pkg="play_robot" name="collect_service"  type="collect_service.py" output="screen"/>
   <node pkg="play_robot" name="turn_service" type="turn_service.py" output="screen"/>
-  <node pkg="play_robot" name="poses_and_gripper" type="poses_and_gripper.py" output="screen"/>
+  <!--<node pkg="play_robot" name="poses_and_gripper" type="poses_and_gripper.py" output="screen"/>-->
   <!--<node pkg="play_robot" name="take_pieces" type="take_pieces.py" output="screen"/>-->
 </launch>

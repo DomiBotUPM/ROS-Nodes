@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <launch>
   <node pkg="move_robot" name="go_to_pose"  type="go_to_pose.py" />
+  <node pkg="move_robot" name="go_to_articular"  type="go_to_articular.py" />
   <node pkg="move_robot" name="gripper_node" type="gripper_node.py" />
 </launch>

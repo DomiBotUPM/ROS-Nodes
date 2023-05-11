@@ -10,6 +10,7 @@ from geometry_msgs.msg import Pose
 from math import pi
 from std_msgs.msg import String
 from std_msgs.msg import Bool
+from std_msgs.msg import Float64MultiArray
 from moveit_commander.conversions import pose_to_list
 import time
 
@@ -55,56 +56,28 @@ class Mover:
         print(self.robot.get_current_state())
         print("")
         '''
-        self.subscriber = rospy.Subscriber('/go_to_pose/goal', Twist, self.pose_callback, queue_size=1)
+        self.subscriber = rospy.Subscriber('/go_to_articular/goal', Float64MultiArray, self.articular_callback, queue_size=1)
 
-    def pose_callback(self, data):
-        #rospy.loginfo(rospy.get_caller_id() + "I heard %s", str(data))
-        """
-        pose_goal = geometry_msgs.msg.Pose()
-        pose_goal.orientation.x = 0.0
-        pose_goal.orientation.y = 0 #-0.707
-        pose_goal.orientation.z = 0.0
-        pose_goal.orientation.w = 1 #0.707
+    def articular_callback(self, data):
 
-        pose_goal.position.x = 0.3
-        pose_goal.position.y = 0.2
-        pose_goal.position.z = 0.5
-        """
         self.publisher_finish.publish(False)
-        #move_group.set_pose_target(pose_goal)
-        x=data.linear.x
-        y=data.linear.y
-        z=data.linear.z 
+        
+        print(str(data) + " " + str(data._type))
+        joint_goal = data.data #[-0.002, -1.281, 0.544, -1.345, -1.522, -0.267]
+        # parameters if you have already set the pose or joint target for the group
+        self.move_group.go(joint_goal, wait=True)
 
-        rx=data.angular.x
-        ry=data.angular.y
-        rz=data.angular.z
-
-        self.move_group.set_pose_target([x,y,z,rx,ry,rz])
-        #self.move_group.set_pose_target([0.21, 0.32, 0.205, -0.1 ,-3.1, 0.0 ])
-
-        plan = self.move_group.go(wait=True)
-	
-        # Calling `stop()` ensures that there is no residual movement
+        # Calling ``stop()`` ensures that there is no residual movement
         self.move_group.stop()
-        # It is always good to clear your targets after planning with poses.
-        # Note: there is no equivalent function for clear_joint_value_targets()
-        self.move_group.clear_pose_targets()    
+        
         time.sleep(1)
         self.publisher_finish.publish(True)
-        
-        #print("============ Printing robot state")
-        #state=self.robot.get_current_state()
-        state=self.move_group.get_current_pose().pose
-        #print(str(state))
-        self.publisher_current_pose.publish(state)
-        #print(state.joint_state.position)
-        
+
     	
         
 	
 if __name__ == '__main__':
-    rospy.init_node('go_to_pose') #_node
+    rospy.init_node('go_to_articular') #_node
     obj=Mover()
     
 
