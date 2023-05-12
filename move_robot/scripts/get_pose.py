@@ -111,8 +111,8 @@ class Mover:
             self.posicion_articular=[-0.002, -1.281, 0.544, -1.345, -1.522, -0.267]
             self.poses=('open','close',self.posicion_articular, 'open', 'close', self.posicion_camara, 'open', 'close','open')
             
-            for i in range(len(self.poses)):
-                print(str(self.poses[i]) + str( type(self.poses[i])))
+            '''for i in range(len(self.poses)):
+                print(str(self.poses[i]) + str( type(self.poses[i])))'''
        
             
         
