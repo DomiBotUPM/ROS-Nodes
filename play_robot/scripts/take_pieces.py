@@ -35,13 +35,8 @@ class pieces:
         self.valores_piezas=[[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0]]#cambio aqui
         self.valores_piezas_robot = [False, 0, 0, 0, 0, 0, True, 0, 0,True, 0, 0, True, 0, 0, True, 0, 0, True, 0, 0]
 
-        
-        #self.posiciones_piezas_robot= ([0.057, 0.522, 0.172, 3.088, -0.013, 1.987],[0.063, 0.464, 0.171, 3.137, 0.03, 2.0],[0.076, 0.401, 0.173, -3.082, 0.013, 2.015],[-0.006, 0.425, 0.175, -3.14, 0.047, 2.079],[0.012, 0.459, 0.171, -3.086, -0.027, 2.029],[0.009, 0.4, 0.172, -3.12, 0.011, 1.999],[-0.048, 0.517, 0.172, 3.103, -0.007, 2.015])
-        self.posiciones_piezas_robot_cartesianas= ([0.057, 0.522, 0.172, 3.088, -0.013, 1.987],[0.063, 0.464, 0.171, 3.137, 0.03, 2.0],[0.076, 0.401, 0.173, -3.082, 0.013, 2.015],[-0.036, 0.53, 0.176, 3.122, 0.01, -1.105],[-0.012, 0.531, 0.177, -3.123, -0.009, 1.969],[0.009, 0.4, 0.172, -3.12, 0.011, 1.999],[-0.048, 0.517, 0.172, 3.103, -0.007, 2.015])
-        #articulares:
-        #self.posiciones_piezas_robot = ([1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.133, -0.843, 1.166, -1.876, -1.543, -2.354])
-        
-        self.posiciones_piezas_robot = ([1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.104, -1.057, 1.553, -2.071, -1.595, -2.466], [1.027, -1.236, 1.789, -2.061, -1.602, -2.513],[0.902, -1.458, 2.093, -2.155, -1.567, -2.622],[1.311, -0.837, 1.154, -1.879, -1.619, -2.195],[1.296, -1.052, 1.544, -2.053, -1.617, -2.205],[1.289, -1.268, 1.885, -2.189, -1.679, -2.236])
+        #posiciones articulares de las piezas propias del robot
+        self.posiciones_piezas_robot = [[1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.104, -1.057, 1.553, -2.071, -1.595, -2.466], [1.027, -1.236, 1.789, -2.061, -1.602, -2.513],[0.902, -1.458, 2.093, -2.155, -1.567, -2.622],[1.311, -0.837, 1.154, -1.879, -1.619, -2.195],[1.296, -1.052, 1.544, -2.053, -1.617, -2.205],[1.289, -1.268, 1.885, -2.189, -1.679, -2.236] ,   [1.439, -0.837, 1.153, -1.875, -1.599, -2.104], [1.403, -1.021, 1.479, -2.003, -1.579, -2.124],[1.395, -1.229, 1.817, -2.152, -1.59, -2.181]] #   con mas posiciones donde poner para robar
 
            	
         self.subscriber_init = rospy.Subscriber('/play_robot/init', String, self.init_callback, queue_size=1)
@@ -122,16 +117,7 @@ class pieces:
                     if(self.pieza_detectada == True): ## Tener cuidado aqui, controlar bien la publicacion de la posicion de la vision y luego empezar la jugada
                 
                         #posiciones donde vans la piezas del robot
-                        '''
-                        array_posicion_piezas_robot=[self.posiciones_piezas_robot[contador_piezas][0],self.posiciones_piezas_robot[contador_piezas][1],self.posiciones_piezas_robot[contador_piezas][2],self.posiciones_piezas_robot[contador_piezas][3],self.posiciones_piezas_robot[contador_piezas][4],self.posiciones_piezas_robot[contador_piezas][5]]
-                        
-                        self.posicion_pieza_robot = self.create_twist(array_posicion_piezas_robot)
-                        
-      
-                        #posiciones de seguridad
-                        array_posicion_pieza_robot_mas_alto=[self.posicion_pieza_robot.linear.x, self.posicion_pieza_robot.linear.y, self.posicion_pieza_robot.linear.z +0.05, self.posicion_pieza_robot.angular.x, self.posicion_pieza_robot.angular.y, self.posicion_pieza_robot.angular.z]
-                        self.posicion_pieza_robot_mas_alto = self.create_twist(array_posicion_pieza_robot_mas_alto)'''
-                        
+
                         array_posicion_pieza_mas_alto=[self.posicion_pieza.linear.x, self.posicion_pieza.linear.y, self.posicion_pieza.linear.z+0.05, self.posicion_pieza.angular.x, self.posicion_pieza.angular.y, self.posicion_pieza.angular.z]
                         self.posicion_pieza_mas_alto = self.create_twist(array_posicion_pieza_mas_alto)
    
@@ -145,17 +131,6 @@ class pieces:
                         #ya no tiene un pieza a la vista
                         self.pieza_detectada = False
 
-                        
-                        #publicacion de las posiciones y valores del robot 
-                        '''self.valores_piezas[contador_piezas]=[True,self.valor_izquierda_arriba,self.valor_derecha_abajo]
-                        
-                        #asignacion de los valores de las piezas - mejor pasarlo a jugada
-                        self.valores_piezas_robot[contador_piezas*3] = True
-                        self.valores_piezas_robot[contador_piezas*3+1] = self.valor_izquierda_arriba
-                        self.valores_piezas_robot[contador_piezas*3+2] = self.valor_derecha_abajo
-                        
-                        self.valores_piezas_robot_send.data = self.valores_piezas_robot'''
-                        
                         #publicar los valores de las piezas
                         
                         self.publisher_finish_go_to_pose.publish(True)
@@ -185,11 +160,13 @@ class pieces:
 
         #rospy.signal_shutdown("Shutting Down")
 
+
+
+
+
     def posicion_piezas_callback(self, data):
         print(data)
         #poner las posiciones obtenidas de la vision
-
-	    #[0.25, 0.312, 0.173, -3.092, -0.027, 1.988]  [0.253, 0.31, 0.226, 3.118, -0.01, -1.252]
 
         self.posicion_pieza= self.create_twist([0.264, 0.346, 0.173, 3.089, -0.015, -1.214])
         
@@ -197,13 +174,15 @@ class pieces:
             
         self.publisher_jugada.publish(True)
 	
+	
+	
+	
+	
+	
+	
     def pose_callback(self, data):
 	
         global contador_movimientos
-      
-
-        #print(turno)
-        #print("El valor es " + str(data.data == 1) + " con data = " +str(data.data))
 
         if(contador_movimientos< len(self.trayectoria_jugada)):
             if (data.data == True and self.trayectoria_jugada !=None): #cambio aqui
@@ -235,12 +214,14 @@ class pieces:
                     print("Esperando")
         else:
             #vaciado de la trayectoria
-            self.trayectoria_jugada=None # cambio aqui
+            self.trayectoria_jugada=None 
             
             self.publisher_jugada.publish(True)
             contador_movimientos=0
-            #print("jugada realizada")
             print('Llevo ' + str(contador_piezas) + ' piezas')
+
+
+
 
 	
             
@@ -258,8 +239,8 @@ class pieces:
         
                   
 if __name__ == '__main__':
-    #global msg
-    rospy.init_node('take_pieces') #_node
+    
+    rospy.init_node('take_pieces')
     obj=pieces()
     
     

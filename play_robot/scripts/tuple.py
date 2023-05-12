@@ -50,3 +50,13 @@ pubstr.publish(str(data_to_send))
 print(array)
 print(data_to_send)
 print(str(data_to_send))
+
+
+
+
+valores_piezas=[[True,3,5],[True,1,5],[True,0,2],[True,3,3],[True,6,4],[True,3,0],[True,0,6]]
+print("INICIAL "+ str(valores_piezas))
+valores_piezas.append([False,8,8])
+print("FINAL "+ str(valores_piezas))
+
+
