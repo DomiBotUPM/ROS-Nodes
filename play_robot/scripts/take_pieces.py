@@ -81,10 +81,14 @@ class pieces:
         
         #posiciones articulares para el movimiento
         self.posicion_up_robot= [0.0, -1.571, -0.0, -1.571, -0.0, -0.0]
+        
         self.posicion_up_piezas_robot= [1.388, -0.906, 0.414, -1.089, -1.602, -0.553]
+        
+        self.posicion_camara_piezas_robot= [1.265, -0.998, 0.433, -0.946, -1.6, -2.253] #[1.377, -1.102, 0.48, -0.917, -1.576, -0.544]
+        
         self.posicion_intermedia= [0.869, -0.98, 0.514, -1.255, -1.593, -0.562]
 
-        self.posicion_camara= [0.094, -1.182, 0.514, -0.959, -1.578, -0.324]
+        self.posicion_camara= [0.221, -1.144, 0.165, -0.594, -1.565, 4.555] #[0.094, -1.182, 0.514, -0.959, -1.578, -0.324]
 
         self.posicion_cuna0 = [0.8, -1.226, 1.174, -1.539, -1.57, -1.134]
 
@@ -124,10 +128,12 @@ class pieces:
                         
                         #creacion de trayectoria
                         self.posicion_pieza_robot = self.posiciones_piezas_robot[contador_piezas]
-
-                        self.trayectoria_jugada_cartesiana = ("open",self.posicion_camara, self.posicion_pieza_mas_alto, self.posicion_pieza, "close",self.posicion_pieza_mas_alto,self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_up_piezas_robot  ,self.posicion_pieza_robot_mas_alto, self.posicion_pieza_robot, "open", self.posicion_pieza_robot_mas_alto, self.posicion_up_piezas_robot, self.posicion_intermedia, self.posicion_camara) # self.posicion_camara, self.posicion_up_robot,
                         
-                        self.trayectoria_jugada = ("open",self.posicion_camara, self.posicion_pieza_mas_alto, self.posicion_pieza, "close",  self.posicion_pieza_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, "open", self.posicion_up_piezas_robot, self.posicion_intermedia, self.posicion_camara)
+                        if(contador_piezas < numpiezas-1): 
+                            self.trayectoria_jugada = ("open",self.posicion_camara, self.posicion_pieza_mas_alto, self.posicion_pieza, "close",  self.posicion_pieza_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, "open", self.posicion_up_piezas_robot, self.posicion_intermedia, self.posicion_camara)
+                        else:
+                            self.trayectoria_jugada = ("open",self.posicion_camara, self.posicion_pieza_mas_alto, self.posicion_pieza, "close",  self.posicion_pieza_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, "open", self.posicion_up_piezas_robot, self.posicion_camara_piezas_robot)
+                            
                         #ya no tiene un pieza a la vista
                         self.pieza_detectada = False
 
