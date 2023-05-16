@@ -21,15 +21,22 @@ global contador
 contador = 0
 global msg
 
+global turno
+turno = None
+
+
 class jugada:
     def __init__(self):
 
         global contador
         global finish_jugada
 
-        self.posiciones_piezas_robot = [[1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.104, -1.057, 1.553, -2.071, -1.595, -2.466], [1.027, -1.236, 1.789, -2.061, -1.602, -2.513],[0.902, -1.458, 2.093, -2.155, -1.567, -2.622],[1.311, -0.837, 1.154, -1.879, -1.619, -2.195],[1.296, -1.052, 1.544, -2.053, -1.617, -2.205],[1.289, -1.268, 1.885, -2.189, -1.679, -2.236] ,   [1.439, -0.837, 1.153, -1.875, -1.599, -2.104], [1.403, -1.021, 1.479, -2.003, -1.579, -2.124],[1.395, -1.229, 1.817, -2.152, -1.59, -2.181]] #   con mas posiciones donde poner para robar
+        #self.posiciones_piezas_robot = [[1.133, -0.843, 1.166, -1.876, -1.543, -2.354],[1.104, -1.057, 1.553, -2.071, -1.595, -2.466], [1.027, -1.236, 1.789, -2.061, -1.602, -2.513],[0.902, -1.458, 2.093, -2.155, -1.567, -2.622],[1.311, -0.837, 1.154, -1.879, -1.619, -2.195],[1.296, -1.052, 1.544, -2.053, -1.617, -2.205],[1.289, -1.268, 1.885, -2.189, -1.679, -2.236] ,   [1.439, -0.837, 1.153, -1.875, -1.599, -2.104], [1.403, -1.021, 1.479, -2.003, -1.579, -2.124],[1.395, -1.229, 1.817, -2.152, -1.59, -2.181]] #   con mas posiciones donde poner para robar
+        
+        self.posiciones_piezas_robot = [[1.226, -0.63, 0.779, -1.719, -1.634, -2.349], [1.165, -0.884, 1.261, -1.958, -1.595, -2.35],[1.132, -1.062, 1.555, -2.039, -1.624, -2.376], [1.376, -0.662, 0.857, -1.788, -1.657, -2.163], [1.337, -0.86, 1.205, -1.887, -1.631, -2.214], [1.302, -1.081, 1.593, -2.06, -1.634, -2.222], [1.479, -0.557, 0.616, -1.594, -1.609, -2.088], [1.476, -0.853, 1.205, -1.915, -1.631, -2.069],[1.458, -1.054, 1.535, -2.032, -1.631, -2.069]]
 
-        self.valores_piezas=[[True,3,5],[True,1,5],[True,0,2],[True,3,3],[True,6,4],[True,3,0],[True,0,6]]
+        #self.valores_piezas=[[True,3,5],[True,1,5],[True,0,2],[True,3,3],[True,6,4],[True,3,0],[True,0,6]]
+        self.valores_piezas = [[False, 0, 0], [0, 0, 0], [False, 0, 0],[False, 0, 0], [False, 0, 0], [False, 0, 0], [False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0]]
         #print("Mis piezas: " + str(self.valores_piezas))
 
 
@@ -53,7 +60,7 @@ class jugada:
         #para obtener los valores de las piezas que se recogen
         self.publisher_valores_nuevas_piezas_robot = rospy.Subscriber('/vision/valores_nuevas_piezas_robot', Float64MultiArray, self.obtain_new_value_piece ,  queue_size=1)
         self.publisher_valores_todas_piezas_robot = rospy.Subscriber('/vision/valores_todas_piezas_robot', Float64MultiArray, self.obtain_value_all_pieces,  queue_size=1)
-        
+        	
 
         #inicializacion de variables de posicion
         self.send_pose = Twist()
@@ -83,16 +90,50 @@ class jugada:
         
         
         
-        #obtener los valores de las piezas que se roban
+    #obtener los valores de las piezas que se roban
     def obtain_new_value_piece(self, data):
-    
-        self.valores_piezas[self.iterador_pieza_nueva][0] = True
+        valores=data.data
+        contador=0
+        #actualizar la pieza nueva
+        for i in range(len(self.valores_piezas)):
+            if(i==self.iterador_pieza_nueva ):
+                break
+            elif(self.valores_piezas[i][0]):
+                contador=contador+1
+        #probar si es verdad esto   
+        self.valores_piezas[self.iterador_pieza_nueva][0] = valores(contador*3)
+        self.valores_piezas[self.iterador_pieza_nueva][1] = valores(contador*3+1)
+        self.valores_piezas[self.iterador_pieza_nueva][2] = valores(contador*3+2)
+        
+        
+            
+        print("Los valores de las piezas tras robar: " + str(self.valores_piezas))
+        self.publisher_turn.publish("jugador")
+        
+        
+        self.trayectoria_jugada = ("open", self.posicion_intermedia, self.posicion_camara_tablero)
+
+        #publicar para que vaya a la posicion de vision del tablero              
+        self.publisher_finish_go_to_pose.publish(True)
+        
+        
+        #print("nuevos valores piezas: " + str(self.valores_piezas[self.iterador_pieza_nueva]))
+        #print("Mis piezas: " + str(self.valores_piezas))
+        #self.publisher_turn.publish("jugador")
+        
+        
+        
+        
+        '''self.valores_piezas[self.iterador_pieza_nueva][0] = True
         self.valores_piezas[self.iterador_pieza_nueva][1]= data.data[0]
         self.valores_piezas[self.iterador_pieza_nueva][2]= data.data[1]
         print("nuevos valores piezas: " + str(self.valores_piezas[self.iterador_pieza_nueva]))
         print("Mis piezas: " + str(self.valores_piezas))
+        self.publisher_turn.publish("jugador")'''
         
         #obtener los valores de todas las piezas que se han recogido
+        
+    #cuando recoge las 7:   
     def obtain_value_all_pieces(self, data):
         valores=data.data
         for i in range(len(valores)/3):
@@ -104,33 +145,14 @@ class jugada:
             self.valores_piezas[i][2] = valores[i*3+2]
             
         print("Los valores de las piezas recogidas: " + str(self.valores_piezas))
+        self.trayectoria_jugada = ("open", self.posicion_intermedia, self.posicion_camara_tablero)
+
+        #publicar para que vaya a la posicion de vision del tableto              
+        self.publisher_finish_go_to_pose.publish(True)
+        self.tipo_jugada = "colocar_camara"
+        #self.publisher_turn.publish("jugador")
         
-        
-        
-    '''def finish_collect_callback(self, data):
-    
-        #mover la camara a la zona del robot para evaluar los valores de las fichas
-        print(data)
-        if(data.data == "finish" or data.data == "FINISH"):
-            self.trayectoria_jugada = ("open", self.posicion_camara_robot , "open")
-            self.publisher_finish_go_to_pose.publish(True)
-            
-            print(self.valores_piezas)
-        else:
-            print("recogiendo")'''
-            
-            
-            
-            
-            
-    '''def valores_nuevas_piezas_callback(self, data): 
-            
-        self.valores_piezas[self.iterador_pieza_nueva][1]= data.data[0]
-        self.valores_piezas[self.iterador_pieza_nueva][2]= data.data[1]
-        print("nuevos valores piezas: " + str(self.valores_piezas[self.iterador_pieza_nueva]))
-        print("Mis piezas: " + str(self.valores_piezas))'''
-            
-            
+
             
     def turn_callback(self, data):
         global turno
@@ -307,7 +329,7 @@ class jugada:
             
             self.posicion_pieza_extremo_mas_alto = self.create_twist(array_posicion_pieza_extremo_mas_alto)
             
-            trayectoria_jugada_usar = (self.posicion_camara_tablero, self.posicion_intermedia , 'open', self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'close', self.posicion_up_piezas_robot, self.posicion_intermedia,  self.posicion_camara_tablero , self.posicion_pieza_extremo_mas_alto , self.posicion_pieza_extremo, 'open' ,self.posicion_pieza_extremo_mas_alto,  self.posicion_camara_tablero)
+            trayectoria_jugada_usar = (self.posicion_camara_tablero, self.posicion_intermedia , 'open', self.posicion_camara_piezas_robot, self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'close', self.posicion_up_piezas_robot, self.posicion_intermedia,  self.posicion_camara_tablero , self.posicion_pieza_extremo_mas_alto , self.posicion_pieza_extremo, 'open' ,self.posicion_pieza_extremo_mas_alto,  self.posicion_camara_tablero)
             
             
             return trayectoria_jugada_usar
@@ -322,7 +344,7 @@ class jugada:
                 
             self.posicion_pieza_robar_mas_alto = self.create_twist(array_posicion_pieza_robar_mas_alto)
                 
-            trayectoria_jugada_robar = (self.posicion_camara_tablero, 'open',  self.posicion_pieza_robar_mas_alto , self.posicion_pieza_robar, 'close', self.posicion_pieza_robar_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'open', self.posicion_up_piezas_robot) #, self.posicion_intermedia,self.posicion_camara_tablero)
+            trayectoria_jugada_robar = (self.posicion_camara_tablero, 'open',  self.posicion_pieza_robar_mas_alto , self.posicion_pieza_robar, 'close', self.posicion_pieza_robar_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'open', self.posicion_up_piezas_robot,self.posicion_camara_piezas_robot) #, self.posicion_intermedia,self.posicion_camara_tablero)
             
             return trayectoria_jugada_robar
             
