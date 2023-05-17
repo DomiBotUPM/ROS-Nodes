@@ -1,0 +1,55 @@
+****************************************************************************************************************************************
+**************************INSTRUCTIVO PARA CONTROL CON RVIZ DEL ROBOT UR3***************************************************************
+****************************************************************************************************************************************
+
+****Obtener calibracion del robot
+roslaunch ur_calibration calibration_correction.launch \robot_ip:=192.168.56.1 target_filename:="${HOME}/my_robot_calibration.yaml"
+**** Este archivo ya se ha obtenido previamente, por lo que no hace falta ejecutar el comando, pero si se debe incluir el archivo "my_robot_calibration.yaml" en la direccion "ur_calibration/etc/my_robot_calibration.yaml" del catkin_ws. Nota: Hay que crear la carpeta "etc".
+
+****************************************************************************************************************************************
+***********************************************Lanzamiento: En tres terminales ejecutar: ***********************************************
+****************************************************************************************************************************************
+
+# Establece la comunicacion de la controladora del robot con el PC y ROS.
+
+Lanzar 1:
+roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=192.168.56.20 \kinematics_config:=$(rospack find ur_calibration)/etc/my_robot_calibration.yaml
+
+# Lanza el sistema de planificacion de Moveit
+
+Lanzar 2:
+roslaunch ur3_moveit_config moveit_planning_execution.launch limited:=true
+
+# Abre la configuracion de RVIZ y la interfaz para planificacion. Nota: Hay que cambiar en Global Options >> Fixed Frame >> "base", por defecto esta en "map". Posteriormente cuando ya se haya incorporado a la interfaz, demas topicos de camara, sistemas de percepcion, etc. Se puede grabar (File >> Save config) la configuracion de Rviz y simplemente cargarla para efectos practicos.
+
+Lanzar 3:
+roslaunch ur3_moveit_config moveit_rviz.launch config:=true
+
+*****************************************************************************************************************************************
+*************************************** Control de la apertura cierre de la pinza********************************************************
+*****************************************************************************************************************************************
+
+-El control se realiza mediante llamada a servicios de ROS:
+
+********* APERTURA *********
+rosservice call /ur_hardware_interface/set_io "fun: 1
+pin: 16
+state: 1.0" 
+
+Nota: Tras activar la salida, se debe desactivar para poder dar paso a otra accion (en este caso cerrar)
+rosservice call /ur_hardware_interface/set_io "fun: 1
+pin: 16
+state: 0.0" 
+
+********* CIERRE ***********
+
+rosservice call /ur_hardware_interface/set_io "fun: 1
+pin: 17
+state: 1.0" 
+
+Nota: Tras activar la salida, se debe desactivar para poder dar paso a otra accion (en este caso abrir)
+rosservice call /ur_hardware_interface/set_io "fun: 1
+pin: 17
+state: 0.0" 
+
+

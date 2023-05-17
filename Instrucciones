@@ -1,0 +1,40 @@
+Instrucciones
+IP robot: en 3 barritas-ajustes
+
+
+Comprobar IP del robot
+
+Luego en PC conexión cableada poner IP  192.168.56.10
+Luego máscara 255.255.255.0
+
+
+Comprobar ifconfig que sale 192.168.56.10
+Hacer ping 192.168.56.20 que es el robot para comprobar conexión
+
+Lanzar UR3_MUAR launches, el primero es: 
+roslaunch ur_calibration calibration_correction.launch \robot_ip:=192.168.56.20 target_filename:="${HOME}/my_robot_calibration.yaml"
+Para obtener parámetros del robot y se lleva el archivo a ur_calibration/etc
+
+Lanzar launch2 y en el robot en programa en URCaps poner Exteernal Control
+habilitar el PC desde la tablet, PLAY reproducir desde el principio programa del robot
+
+
+Lanzar resto de launches
+
+En RIVZ seguir el UR3_MUAR y luego:
+add MotionPlanning
+Velocity Scaling 0,1 Accel. Scaling 0,1
+En displays/Planned Path/Loop Animation se ve el movieminto que va a seguir el robot
+Darle a plan y execute
+
+
+
+
+
+
+EJE
+X hacia nosotros
+Y hacia la derecha
+
+Orientación
+
