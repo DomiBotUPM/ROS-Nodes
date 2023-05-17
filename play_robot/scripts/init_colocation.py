@@ -19,32 +19,22 @@ contador = 0
 global msg
 
 class few_poses:
+
     def __init__(self):
 
-        global contador
-        global turno
-        turno=""
-    
-        
-        self.posicion_pieza_robar = self.create_twist([0.264, 0.346, 0.173, 3.089, -0.015, -1.214])
-        self.posicion_camara = [0.221, -1.144, 0.165, -0.594, -1.565, 4.555]
-        
-        # angulo 0 - -3.139, -0.001, 0.377
-        # angulo 90 - 3.089, -0.015, -1.214
-        self.posicionpieza = self.create_twist([0.3, 0.372,0.3, -3.139, -0.001, 0.377])
-        
-        self.posicionpieza_arriba = self.create_twist([self.posicionpieza.linear.x, self.posicionpieza.linear.y, self.posicionpieza.linear.z+0.05, self.posicionpieza.angular.x, self.posicionpieza.angular.y, self.posicionpieza.angular.z])
-        
         self.posicion_camara= [0.221, -1.144, 0.165, -0.594, -1.565, 4.555]
+    
+        self.posicion_pieza_robar = self.create_twist([0.264, 0.346, 0.173, 3.089, -0.015, -1.214])
         
-        
-        self.poses =('open',self.posicionpieza_arriba, self.posicionpieza, self.posicionpieza_arriba, 'close', self.posicion_camara )
+        self.poses =('open', self.posicion_camara)
 
 
 
 
 
-	#buena posicion [0.3,0.0,0.3,-3.14,0,1.9]
+	    #buena posicion [0.3,0.0,0.3,-3.14,0,1.9]
+        self.subscriber_init = rospy.Subscriber('/play_robot/init', String, self.init_callback, queue_size=1)
+	    
         self.publisher_pose = rospy.Publisher('/go_to_pose/goal', Twist, queue_size=10)
            
         self.publisher_gripper = rospy.Publisher('/gripper/command', String, queue_size=10)
@@ -52,32 +42,27 @@ class few_poses:
         self.publisher_turn = rospy.Publisher('/play_robot/turn', String, queue_size=10)
 
         self.subscriber_finish = rospy.Subscriber('/go_to_pose/finish', Bool, self.pose_callback, queue_size=1) 
-	
-        self.subscriber_turn = rospy.Subscriber('/play_robot/turn', String, self.turn_callback, queue_size=1) 
+        self.publisher_finish_go_to_pose = rospy.Publisher('/go_to_pose/finish', Bool, queue_size=1)
+        
         self.publisher_articular = rospy.Publisher('/go_to_articular/goal', Float64MultiArray, queue_size=1)
-	
-
-
         self.send_pose = Twist()
         self.send_articular = Float64MultiArray()
 
 
-    def turn_callback(self, data):
+    def init_callback(self, data):
+    
+        if(data.data == "init" or data.data =="INIT" ):
+            self.init="init"
+            self.publisher_finish_go_to_pose.publish(True)
+            
 
 
-        global turno
-        turno= data.data
-        print(turno)
-        
-	
+    
 
     def pose_callback(self, data):
 
         global contador
-        global turno
-        #print(turno)
-        #print("El valor es " + str(data.data == 1) + " con data = " +str(data.data))
-        if(turno == "robot" or turno == "ROBOT"):
+        if(self.init=="init"):
             if(contador< len(self.poses)):
                 if (data.data == True):
                         #print (contador)
@@ -102,18 +87,16 @@ class few_poses:
                             self.send_articular.data= self.poses[contador]
                             self.publisher_articular.publish(self.send_articular)
 
+
                         contador = contador +1
                 else:
-                        rospy.loginfo(rospy.get_caller_id() + " Esperando")
+                        print("Esperando")
             else:
-                self.publisher_turn.publish("jugador")
+                self.init="no"
                 contador=0
-                #time.sleep(500)
+      
 
-                #rospy.signal_shutdown("Shutting Down")
 
-        else:
-            contador=0
 
     
     def create_twist(self,valores):

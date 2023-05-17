@@ -36,7 +36,9 @@ class jugada:
         self.posiciones_piezas_robot = [[1.226, -0.63, 0.779, -1.719, -1.634, -2.349], [1.165, -0.884, 1.261, -1.958, -1.595, -2.35],[1.132, -1.062, 1.555, -2.039, -1.624, -2.376], [1.376, -0.662, 0.857, -1.788, -1.657, -2.163], [1.337, -0.86, 1.205, -1.887, -1.631, -2.214], [1.302, -1.081, 1.593, -2.06, -1.634, -2.222], [1.479, -0.557, 0.616, -1.594, -1.609, -2.088], [1.476, -0.853, 1.205, -1.915, -1.631, -2.069],[1.458, -1.054, 1.535, -2.032, -1.631, -2.069]]
 
         #self.valores_piezas=[[True,3,5],[True,1,5],[True,0,2],[True,3,3],[True,6,4],[True,3,0],[True,0,6]]
-        self.valores_piezas = [[False, 0, 0], [0, 0, 0], [False, 0, 0],[False, 0, 0], [False, 0, 0], [False, 0, 0], [False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0]]
+        self.valores_piezas = [[False, 0, 0], [False, 0, 0], [False, 0, 0],[False, 0, 0], [False, 0, 0], [False, 0, 0], [False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0]]
+        self.valores_piezas = [[True, 0, 0], [True, 0, 0], [True, 0, 0],[True, 0, 0], [False, 0, 0], [True, 0, 0], [False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0]]
+        
         #print("Mis piezas: " + str(self.valores_piezas))
 
 
@@ -76,7 +78,7 @@ class jugada:
         self.send_articular = Float64MultiArray()
         
         #para saber cuando gana
-        self.contador_piezas_robot = 7
+        self.contador_piezas_robot = 0
         
         self.posicion_cuna0 = [0.8, -1.226, 1.174, -1.539, -1.57, -1.134]
         self.posicion_cuna1 = [0.789, -1.094, 1.505, -1.999, -1.53, -1.141]
@@ -92,18 +94,21 @@ class jugada:
         
     #obtener los valores de las piezas que se roban
     def obtain_new_value_piece(self, data):
+        #valores = Float64MultiArray()
         valores=data.data
         contador=0
+        print(valores)
         #actualizar la pieza nueva
+        
         for i in range(len(self.valores_piezas)):
             if(i==self.iterador_pieza_nueva ):
                 break
             elif(self.valores_piezas[i][0]):
                 contador=contador+1
         #probar si es verdad esto   
-        self.valores_piezas[self.iterador_pieza_nueva][0] = valores(contador*3)
-        self.valores_piezas[self.iterador_pieza_nueva][1] = valores(contador*3+1)
-        self.valores_piezas[self.iterador_pieza_nueva][2] = valores(contador*3+2)
+        self.valores_piezas[self.iterador_pieza_nueva][0] = True #valores[contador*3]
+        self.valores_piezas[self.iterador_pieza_nueva][1] = valores[contador*3+1]
+        self.valores_piezas[self.iterador_pieza_nueva][2] = valores[contador*3+2]
         
         
             
@@ -146,7 +151,7 @@ class jugada:
             
         print("Los valores de las piezas recogidas: " + str(self.valores_piezas))
         self.trayectoria_jugada = ("open", self.posicion_intermedia, self.posicion_camara_tablero)
-
+        self.contador_piezas_robot = len(self.valores_piezas)
         #publicar para que vaya a la posicion de vision del tableto              
         self.publisher_finish_go_to_pose.publish(True)
         self.tipo_jugada = "colocar_camara"

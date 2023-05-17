@@ -67,6 +67,7 @@ class pieces:
         
         self.publisher_articular = rospy.Publisher('/go_to_articular/goal', Float64MultiArray, queue_size=1) 
         
+        self.publisher_posicion_piezas_vision = rospy.Publisher('/vision/posicion_piezas', String, queue_size=1)
                 
         #inicialicion de variables
         self.posicion_pieza_robot = Float64MultiArray()
@@ -109,7 +110,9 @@ class pieces:
     def init_callback(self, data):
         self.init=data.data
         if(self.init == "init" or self.init == "init"):
-        #para que empiece el movimiento:
+            self.trayectoria_jugada = ("open",self.posicion_camara)
+            #para que empiece el movimiento:
+            self.publisher_posicion_piezas_vision.publish("holi")
             self.publisher_jugada.publish(True)
         if(self.init == "finish" or self.init == "FINISH"):
             print("Finalizada la recogida de piezas")
