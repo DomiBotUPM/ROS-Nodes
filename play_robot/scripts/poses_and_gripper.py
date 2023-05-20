@@ -29,16 +29,16 @@ class few_poses:
         self.posicion_pieza_robar = self.create_twist([0.264, 0.346, 0.173, 3.089, -0.015, -1.214])
         self.posicion_camara = [0.221, -1.144, 0.165, -0.594, -1.565, 4.555]
         
-        # angulo 0 - -3.139, -0.001, 0.377
-        # angulo 90 - 3.089, -0.015, -1.214
-        self.posicionpieza = self.create_twist([0.3, 0.372,0.3, -3.139, -0.001, 0.377])
+        # angulo 90 - -3.139, -0.001, 0.377
+        # angulo 0 - 3.089, -0.015, -1.214
+        self.posicionpieza = self.create_twist([0.3451, 0.1391, 0.173,  -3.139, -0.001, 0.377])
         
         self.posicionpieza_arriba = self.create_twist([self.posicionpieza.linear.x, self.posicionpieza.linear.y, self.posicionpieza.linear.z+0.05, self.posicionpieza.angular.x, self.posicionpieza.angular.y, self.posicionpieza.angular.z])
         
         self.posicion_camara= [0.221, -1.144, 0.165, -0.594, -1.565, 4.555]
         
         
-        self.poses =('open',self.posicionpieza_arriba, self.posicionpieza, self.posicionpieza_arriba, 'close', self.posicion_camara )
+        self.poses =('open',self.posicionpieza_arriba, self.posicionpieza, 'close', self.posicionpieza_arriba,  self.posicion_camara )
 
 
 
@@ -52,7 +52,7 @@ class few_poses:
         self.publisher_turn = rospy.Publisher('/play_robot/turn', String, queue_size=10)
 
         self.subscriber_finish = rospy.Subscriber('/go_to_pose/finish', Bool, self.pose_callback, queue_size=1) 
-	
+        self.publisher_finish = rospy.Publisher('/go_to_pose/finish', Bool, queue_size=1) 
         self.subscriber_turn = rospy.Subscriber('/play_robot/turn', String, self.turn_callback, queue_size=1) 
         self.publisher_articular = rospy.Publisher('/go_to_articular/goal', Float64MultiArray, queue_size=1)
 	
@@ -67,6 +67,7 @@ class few_poses:
 
         global turno
         turno= data.data
+        self.publisher_finish.publish(True)
         print(turno)
         
 	

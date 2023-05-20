@@ -1,10 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import copy
 import rospy
-import moveit_commander
-import moveit_msgs.msg
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose
 from std_msgs.msg import Float64MultiArray
@@ -12,7 +10,6 @@ from std_msgs.msg import Float64MultiArray
 from math import pi
 from std_msgs.msg import String
 from std_msgs.msg import Bool
-from moveit_commander.conversions import pose_to_list
 import time
 import random
 
@@ -20,11 +17,14 @@ import os
 from vision.vision_interface import DominoVision
 import cv2 as cv
 
-
+global canal
+canal=2
 
 class valores_piezas_robot:
     def __init__(self):
+    
         self.domino_vision = DominoVision(visualize=False, verbose=False)
+        
         #esto se define por vision
         self.valores_piezas=[[True,3,5],[True,1,5],[True,0,2],[True,3,3],[True,6,4],[True,3,0],[True,0,6]]
         self.valores_piezas_robot = [False, 0, 0, 0, 0, 0, True, 0, 0,True, 0, 0, True, 0, 0, True, 0, 0, True, 0, 0,False, 0, 0,False, 0, 0,False, 0, 0,False, 0, 0,False, 0, 0]
@@ -53,8 +53,9 @@ class valores_piezas_robot:
         #self.recognise_new_pieces()
         
     def recognise_all_pieces(self):
-        time.sleep(2)
-        capture = cv.VideoCapture(2)
+        global canal
+        time.sleep(1)
+        capture = cv.VideoCapture(canal)
         ret, frame = capture.read()
         size = frame.shape[0]*frame.shape[1]
         detections = self.domino_vision.pieces_detection(frame, size)
@@ -64,16 +65,23 @@ class valores_piezas_robot:
         
         valores_piezas=[0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         contador=0
+        
         for pieza in recognitions2:
+            #print("pieza: ")
+            #print(f"{pieza.dots}, {pieza.center[1]}, {pieza.angle}")
+            
             #print([pieza.center[0], pieza.center[1], pieza.angle, pieza.dots[0], pieza.dots[1]])
+            
             valores_piezas[contador] = True
             valores_piezas[contador+1] = pieza.dots[0]
             valores_piezas[contador+2] = pieza.dots[1]
+            contador = contador +  3
+            
             
             '''self.valores_piezas_robot[contador] = True
             self.valores_piezas_robot[contador+1] = pieza.dots[0]
             self.valores_piezas_robot[contador+2] = pieza.dots[1]'''
-            contador = contador +  3
+            
             
         '''for i in range(len(self.valores_piezas_robot)/3):
             
@@ -128,7 +136,7 @@ class valores_piezas_robot:
                      
 if __name__ == '__main__':
     
-    rospy.init_node('get_all_robot_pieces_values') 
+    rospy.init_node('get_robot_pieces_values') 
     obj=valores_piezas_robot()
     
     try:

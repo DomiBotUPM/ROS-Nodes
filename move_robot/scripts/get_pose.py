@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
+print(sys.version)
 import copy
 import rospy
 import moveit_commander
@@ -51,8 +52,8 @@ class Mover:
         #print(str(state))
         self.publisher_current_pose.publish(state)
         #print(state.joint_state.position)
-        
-    	orientation_list = [state.orientation.x, state.orientation.y, state.orientation.z, state.orientation.w]
+            
+        orientation_list = [state.orientation.x, state.orientation.y, state.orientation.z, state.orientation.w]
         (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
         
         self.actual_pose.linear.x=state.position.x

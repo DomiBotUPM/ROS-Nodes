@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 import copy
@@ -21,7 +21,7 @@ global contador_movimientos
 contador_movimientos = 0
 
 global numpiezas
-numpiezas=1
+numpiezas=7
 global msg
 
 #global valores_piezas
@@ -41,23 +41,29 @@ class pieces:
         self.posiciones_piezas_robot = [[1.226, -0.63, 0.779, -1.719, -1.634, -2.349], [1.165, -0.884, 1.261, -1.958, -1.595, -2.35],[1.132, -1.062, 1.555, -2.039, -1.624, -2.376], [1.376, -0.662, 0.857, -1.788, -1.657, -2.163], [1.337, -0.86, 1.205, -1.887, -1.631, -2.214], [1.302, -1.081, 1.593, -2.06, -1.634, -2.222], [1.479, -0.557, 0.616, -1.594, -1.609, -2.088]]
 
 
-           	
+        ############## subscribers ###############
         self.subscriber_init = rospy.Subscriber('/play_robot/init', String, self.init_callback, queue_size=1)
         
-        self.publisher_init = rospy.Publisher('/play_robot/init', String, queue_size=10)
+        self.subscriber_finish = rospy.Subscriber('/go_to_pose/finish', Bool, self.pose_callback, queue_size=1) 
         
         self.subscriber_jugada = rospy.Subscriber('/play_robot/jugada/finish', Bool, self.jugada_callback, queue_size=1)  
         
-        self.publisher_jugada = rospy.Publisher('/play_robot/jugada/finish', Bool, queue_size=10)
+                
+        #self.subscriber_posicion_piezas_vision = rospy.Subscriber('/vision/posicion_piezas', String, self.posicion_piezas_callback, queue_size=1)
         
-        self.subscriber_posicion_piezas_vision = rospy.Subscriber('/vision/posicion_piezas', String, self.posicion_piezas_callback, queue_size=1)
-
+        #info de la pos de la pieza
+        self.subscriber_posicion_pieza = rospy.Subscriber('/vision/posicion_pieza', Float64MultiArray, self.posicion_pieza_callback, queue_size=10) 
+        
+        ############## publishers ##############
+        
+        self.publisher_init = rospy.Publisher('/play_robot/init', String, queue_size=10)
+        
         #para publicar los movimientos:
         self.publisher_pose = rospy.Publisher('/go_to_pose/goal', Twist, queue_size=10)
            
         self.publisher_gripper = rospy.Publisher('/gripper/command', String, queue_size=10)
 
-        self.subscriber_finish = rospy.Subscriber('/go_to_pose/finish', Bool, self.pose_callback, queue_size=1) 
+        self.publisher_jugada = rospy.Publisher('/play_robot/jugada/finish', Bool, queue_size=10)
         
         #self.publisher_finish = rospy.Publisher('/go_to_pose/finish', Bool, queue_size=10)
         
@@ -68,6 +74,11 @@ class pieces:
         self.publisher_articular = rospy.Publisher('/go_to_articular/goal', Float64MultiArray, queue_size=1) 
         
         self.publisher_posicion_piezas_vision = rospy.Publisher('/vision/posicion_piezas', String, queue_size=1)
+         
+         
+        #pedir info de la posicion de la pieza
+        self.publisher_take_piece = rospy.Publisher('/play_robot/take_piece', Bool, queue_size=1)      
+                
                 
         #inicialicion de variables
         self.posicion_pieza_robot = Float64MultiArray()
@@ -90,6 +101,8 @@ class pieces:
         
         self.posicion_camara_piezas_robot= [1.265, -0.998, 0.433, -0.946, -1.6, -2.253] #[1.377, -1.102, 0.48, -0.917, -1.576, -0.544]
         
+        self.posicion_intermedia_tablero=[0.317, -1.264, 1.039, -1.356, -1.573, 6.112]
+        
         self.posicion_intermedia= [0.869, -0.98, 0.514, -1.255, -1.593, -0.562]
 
         self.posicion_camara= [0.221, -1.144, 0.165, -0.594, -1.565, 4.555] #[0.094, -1.182, 0.514, -0.959, -1.578, -0.324]
@@ -106,16 +119,31 @@ class pieces:
 
         self.posicion_cuna5 = [1.01, -0.744, 0.383, -1.239, -1.584, -0.9]
         
+        self.flag_finish = False
+        
         
     def init_callback(self, data):
         self.init=data.data
         if(self.init == "init" or self.init == "init"):
             self.trayectoria_jugada = ("open",self.posicion_camara)
             #para que empiece el movimiento:
-            self.publisher_posicion_piezas_vision.publish("holi")
-            self.publisher_jugada.publish(True)
+            #self.publisher_posicion_piezas_vision.publish("holi")#pruebas
+            self.publisher_take_piece.publish(True)
+            #self.publisher_jugada.publish(True) --este
+            
         if(self.init == "finish" or self.init == "FINISH"):
+            self.flag_finish = True
             print("Finalizada la recogida de piezas")
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             
     def jugada_callback(self, data): #crea la trayectoria
     
@@ -136,11 +164,11 @@ class pieces:
                         self.posicion_pieza_robot = self.posiciones_piezas_robot[contador_piezas]
                         
                         if(contador_piezas < numpiezas-1): 
-                            self.trayectoria_jugada = ("open",self.posicion_camara, self.posicion_pieza_mas_alto, self.posicion_pieza, "close",  self.posicion_pieza_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, "open", self.posicion_up_piezas_robot, self.posicion_intermedia, self.posicion_camara)
+                            self.trayectoria_jugada = ("open",self.posicion_camara,self.posicion_intermedia_tablero,  self.posicion_pieza_mas_alto, self.posicion_pieza, "close",  self.posicion_pieza_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, "open", self.posicion_up_piezas_robot, self.posicion_intermedia, self.posicion_camara,"acabo_jugada")
                         else:
-                            self.trayectoria_jugada = ("open",self.posicion_camara, "open", self.posicion_up_piezas_robot, self.posicion_camara_piezas_robot)
+                            #self.trayectoria_jugada = ("open",self.posicion_camara, "open", self.posicion_up_piezas_robot, self.posicion_camara_piezas_robot)
                             #buena:
-                            self.trayectoria_jugadabuena = ("open",self.posicion_camara, self.posicion_pieza_mas_alto, self.posicion_pieza, "close",  self.posicion_pieza_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, "open", self.posicion_up_piezas_robot, self.posicion_camara_piezas_robot)
+                            self.trayectoria_jugada = ("open",self.posicion_camara, self.posicion_intermedia_tablero, self.posicion_pieza_mas_alto, self.posicion_pieza, "close",  self.posicion_pieza_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, "open", self.posicion_up_piezas_robot, self.posicion_camara_piezas_robot,"acabo_recogida")
 
 
                             
@@ -152,7 +180,7 @@ class pieces:
                         self.publisher_finish_go_to_pose.publish(True)
                         
 
-                        contador_piezas= contador_piezas+1
+                        contador_piezas = contador_piezas+1
                         
                         
                     else:
@@ -180,12 +208,23 @@ class pieces:
 
 
 
-    def posicion_piezas_callback(self, data):
+    '''def posicion_piezas_callback(self, data):
         print(data)
         #poner las posiciones obtenidas de la vision
 
         self.posicion_pieza= self.create_twist([0.264, 0.346, 0.173, 3.089, -0.015, -1.214])
         
+        self.pieza_detectada = True
+            
+        self.publisher_jugada.publish(True)'''
+        
+    def posicion_pieza_callback(self, data):
+    
+        print(data)
+        #poner las posiciones obtenidas de la vision
+
+        self.posicion_pieza= self.create_twist(data.data)
+        print(self.posicion_pieza)
         self.pieza_detectada = True
             
         self.publisher_jugada.publish(True)
@@ -199,7 +238,8 @@ class pieces:
     def pose_callback(self, data):
 	
         global contador_movimientos
-
+        global contador_piezas
+        
         if(contador_movimientos< len(self.trayectoria_jugada)):
             if (data.data == True and self.trayectoria_jugada !=None): #cambio aqui
                     #print (contador)
@@ -208,6 +248,10 @@ class pieces:
                         if(str(self.trayectoria_jugada[contador_movimientos]) == "open"):
                             self.publisher_gripper.publish("open")
                             print("open")
+                        elif(str(self.trayectoria_jugada[contador_movimientos]) == "acabo_recogida"):
+                            #contador_piezas = contador_piezas+1
+                            self.publisher_finish_go_to_pose.publish(True)
+                            print("Recogí pieza")
                         else:
                             self.publisher_gripper.publish("close")
                             print("close")
@@ -232,10 +276,11 @@ class pieces:
             #vaciado de la trayectoria
             self.trayectoria_jugada=None 
             
-            self.publisher_jugada.publish(True)
+            #self.publisher_jugada.publish(True)
             contador_movimientos=0
             print('Llevo ' + str(contador_piezas) + ' piezas')
-
+            if(self.flag_finish != True):
+                self.publisher_take_piece.publish(True)
 
 
 

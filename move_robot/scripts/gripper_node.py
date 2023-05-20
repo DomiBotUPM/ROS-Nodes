@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 from Gripper import Gripper
@@ -31,9 +31,9 @@ class GripperNode:
             self.publisher_finish.publish(True)#
         elif data.data == 'detect':
             if self.gripper.grip_detect():
-                print 'grasp success'
+                print('grasp success')
             else:
-                print "failed to grasp"
+                print ("failed to grasp")
 
 if __name__ == '__main__':
     node = GripperNode()

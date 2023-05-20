@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+   
+    <!--<include file="$(find ur_robot_driver)/launch/ur3_bringup.launch">
+        <arg name="robot_ip" value="192.168.56.20" />
+        <arg name="\kinematics_config" command="load" file="$(rospack find ur_calibration)/etc/my_robot_calibration.yaml"/>
+    </include>-->
+    
+    <include file="$(find ur3_moveit_config)/launch/moveit_planning_execution.launch">
+        <arg name="limited" value="true" />
+    </include>
+    
+    <include file="$(find ur3_moveit_config)/launch/moveit_rviz.launch">
+        <arg name="config" value="true" />
+
+    </include>
+    
+</launch>
+

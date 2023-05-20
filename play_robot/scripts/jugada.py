@@ -49,6 +49,7 @@ class jugada:
         self.publisher_articular = rospy.Publisher('/go_to_articular/goal', Float64MultiArray, queue_size=1)
         self.publisher_jugada = rospy.Publisher('/play_robot/jugada/finish', Bool, queue_size=10)
         self.publisher_turn = rospy.Publisher('/play_robot/turn', String, queue_size=10)
+        self.publisher_init = rospy.Publisher('/play_robot/init', String, queue_size=10)
         
         #subscribers
         
@@ -113,14 +114,15 @@ class jugada:
         
             
         print("Los valores de las piezas tras robar: " + str(self.valores_piezas))
-        self.publisher_turn.publish("jugador")
+        
+        #self.publisher_turn.publish("jugador")
         
         
         self.trayectoria_jugada = ("open", self.posicion_intermedia, self.posicion_camara_tablero)
 
         #publicar para que vaya a la posicion de vision del tablero              
         self.publisher_finish_go_to_pose.publish(True)
-        
+        self.publisher_init.publish("collocation")
         
         #print("nuevos valores piezas: " + str(self.valores_piezas[self.iterador_pieza_nueva]))
         #print("Mis piezas: " + str(self.valores_piezas))
@@ -141,19 +143,20 @@ class jugada:
     #cuando recoge las 7:   
     def obtain_value_all_pieces(self, data):
         valores=data.data
-        for i in range(len(valores)/3):
+        for i in range(int(len(valores)/3)):
             if (valores[i*3] == 1):
                 self.valores_piezas[i][0] = True
             else:   
                 self.valores_piezas[i][0] = False
-            self.valores_piezas[i][1] = valores[i*3+1]
-            self.valores_piezas[i][2] = valores[i*3+2]
+            self.valores_piezas[i][1] = int(valores[i*3+1])
+            self.valores_piezas[i][2] = int(valores[i*3+2])
             
         print("Los valores de las piezas recogidas: " + str(self.valores_piezas))
         self.trayectoria_jugada = ("open", self.posicion_intermedia, self.posicion_camara_tablero)
         self.contador_piezas_robot = len(self.valores_piezas)
         #publicar para que vaya a la posicion de vision del tableto              
         self.publisher_finish_go_to_pose.publish(True)
+        self.publisher_init.publish("collocation")
         self.tipo_jugada = "colocar_camara"
         #self.publisher_turn.publish("jugador")
         
