@@ -52,7 +52,7 @@ class pieces:
         #self.subscriber_posicion_piezas_vision = rospy.Subscriber('/vision/posicion_piezas', String, self.posicion_piezas_callback, queue_size=1)
         
         #info de la pos de la pieza
-        self.subscriber_posicion_pieza = rospy.Subscriber('/vision/posicion_pieza', Float64MultiArray, self.posicion_pieza_callback, queue_size=10) 
+        self.subscriber_posicion_pieza = rospy.Subscriber('/vision/posicion_pieza_robar', Float64MultiArray, self.posicion_pieza_robar_callback, queue_size=10) 
         
         ############## publishers ##############
         
@@ -218,7 +218,7 @@ class pieces:
             
         self.publisher_jugada.publish(True)'''
         
-    def posicion_pieza_callback(self, data):
+    def posicion_pieza_robar_callback(self, data):
     
         print(data)
         #poner las posiciones obtenidas de la vision
