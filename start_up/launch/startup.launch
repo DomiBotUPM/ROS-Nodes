@@ -3,5 +3,6 @@
     <include file="$(find move_robot)/launch/move_robot.launch"/>
     <include file="$(find play_robot)/launch/play_robot.launch"/>
     <include file="$(find start_up)/launch/connection.launch"/>
+    <include file="$(find vision)/launch/vision.launch"/>
     
 </launch>

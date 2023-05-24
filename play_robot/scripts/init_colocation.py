@@ -50,10 +50,10 @@ class few_poses:
         
         self.send_pose = Twist()
         self.send_articular = Float64MultiArray()
-
+        self.init=""
 
     def init_callback(self, data):
-    
+        
         if(data.data == "collocation" or data.data =="COLLOCATION" ):
             self.init="collocation"
             self.publisher_finish_go_to_pose.publish(True)
@@ -73,30 +73,30 @@ class few_poses:
                         if(isinstance(self.poses[contador], str)): #si es open o close
                             if(str(self.poses[contador]) == "open"):
                                 self.publisher_gripper.publish("open")
-                                print("open")
+                                #print("open")
                             elif(str(self.poses[contador]) == "acabo"):
                                 self.publisher_turn.publish("jugador")
                                 
                             else:
                                 self.publisher_gripper.publish("close")
-                                print("close")
+                                #print("close")
                                 
                         elif("Twist" in str(type(self.poses[contador]))): #enviar la pose a la que tiene que ir el robot           
 
                             self.send_pose=self.poses[contador]
 
-                            print("pose")
+                            #print("pose")
                             self.publisher_pose.publish(self.send_pose)
                             
                         else:
-                            print("Articular")
+                            #print("Articular")
                             self.send_articular.data= self.poses[contador]
                             self.publisher_articular.publish(self.send_articular)
 
 
                         contador = contador +1
-                else:
-                        print("Esperando")
+                #else:
+                        #print("Esperando")
             else:
                 self.init="no"
                 contador=0

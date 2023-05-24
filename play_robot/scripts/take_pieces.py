@@ -21,7 +21,7 @@ global contador_movimientos
 contador_movimientos = 0
 
 global numpiezas
-numpiezas=7
+numpiezas=1
 global msg
 
 #global valores_piezas
@@ -32,6 +32,7 @@ class pieces:
 
         global contador_piezas
         global numpiezas
+        self.node_name ="take_pieces"
         self.valores_piezas=[[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0],[False,0,0]]#cambio aqui
         self.valores_piezas_robot = [False, 0, 0, 0, 0, 0, True, 0, 0,True, 0, 0, True, 0, 0, True, 0, 0, True, 0, 0]
 
@@ -77,7 +78,7 @@ class pieces:
          
          
         #pedir info de la posicion de la pieza
-        self.publisher_take_piece = rospy.Publisher('/play_robot/take_piece', Bool, queue_size=1)      
+        self.publisher_take_piece = rospy.Publisher('/vision/take_piece', Bool, queue_size=1)      
                 
                 
         #inicialicion de variables
@@ -124,6 +125,7 @@ class pieces:
         
     def init_callback(self, data):
         self.init=data.data
+        
         if(self.init == "init" or self.init == "init"):
             self.trayectoria_jugada = ("open",self.posicion_camara)
             #para que empiece el movimiento:
@@ -133,8 +135,8 @@ class pieces:
             
         if(self.init == "finish" or self.init == "FINISH"):
             self.flag_finish = True
-            print("Finalizada la recogida de piezas")
-            
+            #print("Finalizada la recogida de piezas")
+            rospy.loginfo(f"{self.node_name }: Finalizada la recogida de piezas")
             
             
             
@@ -184,7 +186,8 @@ class pieces:
                         
                         
                     else:
-                        print("Falta detectar pieza")
+                        rospy.loginfo(f"{self.node_name }: Falta detectar pieza")
+                        #print("Falta detectar pieza")
                        
                        
                        
@@ -195,7 +198,8 @@ class pieces:
                     #self.publisher_valores_piezas.publish(self.valores_piezas_robot_send)
                     contador=0
         else:
-            print("Finalizada la recogida de la pieza")
+            rospy.loginfo(f"{self.node_name }: Finalizada la recogida de la pieza")
+            #print("Finalizada la recogida de la pieza")
             #print(str(self.valores_piezas))
             
             
@@ -220,11 +224,11 @@ class pieces:
         
     def posicion_pieza_robar_callback(self, data):
     
-        print(data)
+        #print(data)
         #poner las posiciones obtenidas de la vision
 
         self.posicion_pieza= self.create_twist(data.data)
-        print(self.posicion_pieza)
+        #print(self.posicion_pieza)
         self.pieza_detectada = True
             
         self.publisher_jugada.publish(True)
@@ -239,48 +243,49 @@ class pieces:
 	
         global contador_movimientos
         global contador_piezas
-        
-        if(contador_movimientos< len(self.trayectoria_jugada)):
-            if (data.data == True and self.trayectoria_jugada !=None): #cambio aqui
-                    #print (contador)
-                        
-                    if(isinstance(self.trayectoria_jugada[contador_movimientos], str)): #si es open o close
-                        if(str(self.trayectoria_jugada[contador_movimientos]) == "open"):
-                            self.publisher_gripper.publish("open")
-                            print("open")
-                        elif(str(self.trayectoria_jugada[contador_movimientos]) == "acabo_recogida"):
-                            #contador_piezas = contador_piezas+1
-                            self.publisher_finish_go_to_pose.publish(True)
-                            print("Recogí pieza")
-                        else:
-                            self.publisher_gripper.publish("close")
-                            print("close")
+        if (self.init == 'init' or self.init == 'INIT'):
+            if(contador_movimientos< len(self.trayectoria_jugada)):
+                if (data.data == True and self.trayectoria_jugada !=None): #cambio aqui
+                        #print (contador)
                             
-                    elif("Twist" in str(type(self.trayectoria_jugada[contador_movimientos]))): #enviar la pose a la que tiene que ir el robot           
+                        if(isinstance(self.trayectoria_jugada[contador_movimientos], str)): #si es open o close
+                            if(str(self.trayectoria_jugada[contador_movimientos]) == "open"):
+                                self.publisher_gripper.publish("open")
+                                #print("open")
+                            elif(str(self.trayectoria_jugada[contador_movimientos]) == "acabo_recogida"):
+                                #contador_piezas = contador_piezas+1
+                                self.publisher_finish_go_to_pose.publish(True)
+                                print("Recogí pieza")
+                            else:
+                                self.publisher_gripper.publish("close")
+                                #print("close")
+                                
+                        elif("Twist" in str(type(self.trayectoria_jugada[contador_movimientos]))): #enviar la pose a la que tiene que ir el robot           
 
-                        self.send_pose=self.trayectoria_jugada[contador_movimientos]
+                            self.send_pose=self.trayectoria_jugada[contador_movimientos]
 
-                        print("pose")
-                        self.publisher_pose.publish(self.send_pose)
+                            #print("pose")
+                            self.publisher_pose.publish(self.send_pose)
+                            
+                        else:
+                            #print("Articular")
+                            self.send_articular.data= self.trayectoria_jugada[contador_movimientos]
+                            self.publisher_articular.publish(self.send_articular)
                         
-                    else:
-                        print("Articular")
-                        self.send_articular.data= self.trayectoria_jugada[contador_movimientos]
-                        self.publisher_articular.publish(self.send_articular)
-                    
 
-                    contador_movimientos = contador_movimientos +1
+                        contador_movimientos = contador_movimientos +1
+                #else:
+                        #print("Esperando")
             else:
-                    print("Esperando")
-        else:
-            #vaciado de la trayectoria
-            self.trayectoria_jugada=None 
-            
-            #self.publisher_jugada.publish(True)
-            contador_movimientos=0
-            print('Llevo ' + str(contador_piezas) + ' piezas')
-            if(self.flag_finish != True):
-                self.publisher_take_piece.publish(True)
+                #vaciado de la trayectoria
+                self.trayectoria_jugada= [""] #None 
+                
+                #self.publisher_jugada.publish(True)
+                contador_movimientos=0
+                rospy.loginfo(f'{self.node_name }: Llevo {contador_piezas} piezas')
+                #print('Llevo ' + str(contador_piezas) + ' piezas')
+                if(self.flag_finish != True):
+                    self.publisher_take_piece.publish(True)
 
 
 

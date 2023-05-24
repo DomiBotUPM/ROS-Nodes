@@ -28,12 +28,14 @@ turno = None
 
 class jugada:
     def __init__(self):
-
+        self.node_name ="jugada"
         global contador
-              
+        global turno
+        turno = None
+        
         self.posiciones_piezas_robot = [[1.226, -0.63, 0.779, -1.719, -1.634, -2.349], [1.165, -0.884, 1.261, -1.958, -1.595, -2.35],[1.132, -1.062, 1.555, -2.039, -1.624, -2.376], [1.376, -0.662, 0.857, -1.788, -1.657, -2.163], [1.337, -0.86, 1.205, -1.887, -1.631, -2.214], [1.302, -1.081, 1.593, -2.06, -1.634, -2.222], [1.479, -0.557, 0.616, -1.594, -1.609, -2.088], [1.476, -0.853, 1.205, -1.915, -1.631, -2.069],[1.458, -1.054, 1.535, -2.032, -1.631, -2.069]]
 
-        self.valores_piezas = [[False, 0, 0], [False, 0, 0], [False, 0, 0],[False, 0, 0], [False, 0, 0], [False, 0, 0], [False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0]]
+        self.valores_piezas = [[False, 0, 0], [False, 0, 0], [False, 0, 0],[False, 0, 0], [False, 0, 0], [False, 0, 0], [False, 0, 0]] #,[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0],[False, 0, 0]]
 
         ############# publishers #############
         self.publisher_pose = rospy.Publisher('/go_to_pose/goal', Twist, queue_size=10)
@@ -103,12 +105,14 @@ class jugada:
             self.valores_piezas[i][1] = int(valores[i*3+1])
             self.valores_piezas[i][2] = int(valores[i*3+2])
             
-        print("Los valores de las piezas recogidas: " + str(self.valores_piezas))
+        rospy.loginfo(f"{self.node_name }: Los valores de las piezas recogidas: {self.valores_piezas}")
+        #print("Los valores de las piezas recogidas: " + str(self.valores_piezas))
         self.trayectoria_jugada = ("open", self.posicion_intermedia, self.posicion_camara_tablero)
         self.contador_piezas_robot = len(self.valores_piezas)
-        #publicar para que vaya a la posicion de vision del tableto              
-        self.publisher_finish_go_to_pose.publish(True)
-        self.publisher_init.publish("collocation")
+        #publicar para que vaya a la posicion de vision del tableto  
+        self.publisher_init.publish("collocation")            
+        #self.publisher_finish_go_to_pose.publish(True)
+        
         self.tipo_jugada = "colocar_camara"
         #self.publisher_turn.publish("jugador")
         
@@ -117,11 +121,13 @@ class jugada:
     def obtain_new_value_piece(self, data):
         valores=data.data
         contador=0
-        print(valores)
+        #print(valores)
         #actualizar la pieza nueva
+        #flag_new_piece=False
         
         for i in range(len(self.valores_piezas)):
             if(i==self.iterador_pieza_nueva ):
+                #flag_new_piece=True
                 break
             elif(self.valores_piezas[i][0]):
                 contador=contador+1
@@ -131,8 +137,8 @@ class jugada:
         self.valores_piezas[self.iterador_pieza_nueva][2] = valores[contador*3+2]
         
         
-            
-        print("Los valores de las piezas tras robar: " + str(self.valores_piezas))
+        rospy.loginfo(f"{self.node_name }: Los valores de las piezas tras robar: {self.valores_piezas}") 
+        #print("Los valores de las piezas tras robar: " + str(self.valores_piezas))
 
         self.trayectoria_jugada = ("open", self.posicion_intermedia, self.posicion_camara_tablero)
 
@@ -140,7 +146,7 @@ class jugada:
         self.publisher_finish_go_to_pose.publish(True)
         #ir a la posicion de la camara sobre el tablero
         self.publisher_init.publish("collocation")
-
+        
         #obtener los valores de todas las piezas que se han recogido
         
     
@@ -153,7 +159,8 @@ class jugada:
         #es el turno del robot -  hace una foto al tablero y evalua la logica
         if(data.data == "robot" or data.data == "ROBOT"):
             self.publisher_obtain_all_pieces_tablero.publish(True)
-            print("Esperando al reconocimiento de piezas")
+            rospy.loginfo(f"{self.node_name }: Esperando al reconocimiento de piezas")
+            #print("Esperando al reconocimiento de piezas")
             '''if(self.pieza_detectada == True): ## Tener cuidado aqui, controlar bien la publicacion de la posicion de la vision y luego empezar la jugada
         
                 #ya no tiene un pieza a la vista
@@ -175,7 +182,7 @@ class jugada:
     def pose_callback(self, data):
 
         global contador
-                global turno
+        global turno
                 
         if(turno == "robot" or turno == "ROBOT"):
             
@@ -208,31 +215,41 @@ class jugada:
 
                         contador = contador +1
                         
-            else:
+            else: #ha acabado el moviento
+            
                 #comprobar si el robot ha ganado:
                 if(self.contador_piezas_robot == 0):
-                    print("El robot ha ganado")
+                    rospy.loginfo(f"{self.node_name }: El robot ha ganado")
+                    #print("El robot ha ganado")
                     self.publisher_turn.publish("victoria_robot")
                     
                     
-                    
+                #la partida sigue
                 else:
-                    print("Me quedan " + str(self.contador_piezas_robot) + " fichas")
+                    
+                    #print("Me quedan " + str(self.contador_piezas_robot) + " fichas")
                     
                     #cuando ha robado llama a la vision para reconocer su nueva pieza
                     if(self.tipo_jugada == "robar_pieza"): # se ha robado
                         #mandar a reconocer la posicion de la pieza que debe robar
-                        self.publisher_take_piece.publish(True)
-                    elif(self.tipo_jugada == "pieza_robada"):
-                        #mandar a reconocer los valores de la nueva pieza 
+                        self.tipo_jugada = "pieza_robada"
+                        #self.contador_piezas_robot = self.contador_piezas_robot + 1
                         self.publisher_turn.publish("evaluando")
+                        #self.publisher_take_piece.publish(True)
+                        '''elif(self.tipo_jugada == "pieza_robada"):
+                        #mandar a reconocer los valores de la nueva pieza 
+                        self.publisher_turn.publish("evaluando")'''
                         
                     else: # se ha jugado
                     
                         self.publisher_turn.publish("jugador")
-                        print("Mis piezas: " + str(self.valores_piezas))
+                        rospy.loginfo(f"{self.node_name }: Mis piezas: {self.valores_piezas}")
+                        #print("Mis piezas: " + str(self.valores_piezas))
                     
                     #self.publisher_jugada.publish(True)
+                    
+                    rospy.loginfo(f"{self.node_name }: Me quedan {self.contador_piezas_robot} fichas")
+                    
                 contador=0
 
         else:  
@@ -240,42 +257,48 @@ class jugada:
     
     
     def posicion_pieza_robar_callback(self, data):
-        print(data)
+        global turno
 
-        #elegir la posicion donde dejar la pieza
-        self.posicion_pieza_robot = self.elegir_posicion_pieza_robot()
-        #posicion de la pieza que debe robar
-        self.posicion_pieza_robar = self.create_twist(data.data)
+        #es el turno del robot -  hace una foto al tablero y evalua la logica
+        if(turno == "robot" or turno == "ROBOT"):
+            #print(data)
 
-        array_posicion_pieza_robar_mas_alto=[self.posicion_pieza_robar.linear.x, self.posicion_pieza_robar.linear.y, self.posicion_pieza_robar.linear.z+0.05, self.posicion_pieza_robar.angular.x, self.posicion_pieza_robar.angular.y, self.posicion_pieza_robar.angular.z]
-                
-        self.posicion_pieza_robar_mas_alto = self.create_twist(array_posicion_pieza_robar_mas_alto)
-        #recoger la pieza
-        self.trayectoria_jugada=('open',self.posicion_pieza_robar_mas_alto, self.posicion_pieza_robar, 'close ', 
-                                 self.posicion_pieza_robar_mas_alto, self.posicion_cuna0, self.posicion_cuna1, 
-                                 self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, 
-                                 self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'open',  
-                                 self.posicion_up_piezas_robot,self.posicion_camara_piezas_robot)
-        #para cuando acabe sepa que debe reconocer la pieza
-        self.tipo_jugada = "pieza_robada"
-        #iniciar el movimiento
-        self.publisher_finish_go_to_pose.publish(True)
+            #elegir la posicion donde dejar la pieza
+            self.posicion_pieza_robot = self.elegir_posicion_pieza_robot()
+            #posicion de la pieza que debe robar
+            self.posicion_pieza_robar = self.create_twist(data.data)
+
+            array_posicion_pieza_robar_mas_alto=[self.posicion_pieza_robar.linear.x, self.posicion_pieza_robar.linear.y, self.posicion_pieza_robar.linear.z+0.05, self.posicion_pieza_robar.angular.x, self.posicion_pieza_robar.angular.y, self.posicion_pieza_robar.angular.z]
+                    
+            self.posicion_pieza_robar_mas_alto = self.create_twist(array_posicion_pieza_robar_mas_alto)
+            #recoger la pieza
+            self.trayectoria_jugada=('open',self.posicion_pieza_robar_mas_alto, self.posicion_pieza_robar, 'close ', 
+                                     self.posicion_pieza_robar_mas_alto, self.posicion_cuna0, self.posicion_cuna1, 
+                                     self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, 
+                                     self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'open',  
+                                     self.posicion_up_piezas_robot,self.posicion_camara_piezas_robot)
+            #para cuando acabe sepa que debe reconocer la pieza
+            self.tipo_jugada = "pieza_robada"
+            #iniciar el movimiento
+            self.publisher_finish_go_to_pose.publish(True)
+    
     
     #detecta todas las piezas que hay en el tablero y llama a la logica
     def all_pieces_tablero_callback(self, data):
         #recibe las posiciones y valores de todas las fichas jugadas
-        print(data.data)
+        rospy.loginfo(f"{self.node_name }: {data.data}")
+        #print(data.data)
         piezas=data.data
         contador=0
         fichas_tablero=[]
         
-        for i in range(len(piezas)/5):
+        for i in range(int(len(piezas)/5)):
             array=[piezas[contador+0],piezas[contador+1],piezas[contador+2],piezas[contador+3],piezas[contador+4]]
             fichas_tablero.append(array)
             contador=contador+5
-        
+        print(f"Fcihas del tableto: {fichas_tablero}")
         #ya tenemos las piezas modo [[x,y,ang,v1,v2],[x,y,ang,v1,v2],...] ahora se llama a la logica
-        self.logica_juego()
+        self.logica_juego(fichas_tablero)
         
         
         #self.posicion_pieza_jugar = self.create_twist([0.364, 0.073, 0.177, -3.141, -0.06, -1.161])
@@ -318,13 +341,19 @@ class jugada:
         if(ficha_robot != -1): #jugar
         
             self.tipo_jugada = "jugar"
-            print(f"Cojo la ficha {ficha_robot+1}")# + str(i+1))# + " "  + str(self.valores_piezas))
+            rospy.loginfo(f"{self.node_name }: Cojo la ficha {ficha_robot+1}")
+            #print(f"Cojo la ficha {ficha_robot+1}")# + str(i+1))# + " "  + str(self.valores_piezas))
             
             #coger la ficha del robot
             self.posicion_pieza_robot = self.posiciones_piezas_robot[ficha_robot]
             
             ##evaluar el ang_dest
             
+            rospy.loginfo(f"{self.node_name }: La ficha {ficha_robot+1} la pongo en la posicion {x_dest}, {y_dest}")
+            
+            # se quita la ficha de la lista
+            self.valores_piezas[ficha_robot][0]= False
+            self.contador_piezas_robot = self.contador_piezas_robot - 1
             
             #donde colocar la pieza
             self.posicion_pieza_jugar = self.create_twist([x_dest, y_dest, 0.173, -3.141, -0.06, -1.161])
@@ -333,17 +362,30 @@ class jugada:
             
             self.posicion_pieza_jugar_mas_alto = self.create_twist(array_posicion_pieza_jugar_mas_alto)
             
-            trayectoria_jugada_usar = (self.posicion_camara_tablero, self.posicion_intermedia , 'open', self.posicion_camara_piezas_robot, self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'close', self.posicion_up_piezas_robot, self.posicion_intermedia,  self.posicion_camara_tablero , self.posicion_pieza_jugar_mas_alto , self.posicion_pieza_jugar, 'open' ,self.posicion_pieza_jugar_mas_alto,  self.posicion_camara_tablero)
+            trayectoria_jugada_usar = (self.posicion_camara_tablero, self.posicion_intermedia , 'open', self.posicion_camara_piezas_robot, self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'close', self.posicion_up_piezas_robot, self.posicion_intermedia, self.posicion_pieza_jugar_mas_alto , self.posicion_pieza_jugar, 'open' ,self.posicion_pieza_jugar_mas_alto,  self.posicion_camara_tablero)
             
             
             return trayectoria_jugada_usar
             
             
         else: #robar
-            print("No tengo pieza valida, robo")
+            rospy.loginfo(f"{self.node_name }: No tengo pieza valida, robo")
+            #print("No tengo pieza valida, robo")
+            
+            self.posicion_pieza_robot = self.elegir_posicion_pieza_robot() #nuevo aqui
+            
             self.tipo_jugada = "robar_pieza"
-
-            trayectoria_jugada_robar = ('open', self.posicion_camara_tablero_robar,'open')
+            
+            self.posicion_pieza_robar = self.create_twist([0.264, 0.346, 0.173, 3.089, -0.015, -1.214])
+            
+            array_posicion_pieza_robar_mas_alto=[self.posicion_pieza_robar.linear.x, self.posicion_pieza_robar.linear.y, self.posicion_pieza_robar.linear.z+0.05, self.posicion_pieza_robar.angular.x, self.posicion_pieza_robar.angular.y, self.posicion_pieza_robar.angular.z]
+                
+            self.posicion_pieza_robar_mas_alto = self.create_twist(array_posicion_pieza_robar_mas_alto)
+                
+            trayectoria_jugada_robar = (self.posicion_camara_tablero, 'open',  self.posicion_pieza_robar_mas_alto , self.posicion_pieza_robar, 'close', self.posicion_pieza_robar_mas_alto, self.posicion_cuna0, self.posicion_cuna1, self.posicion_cuna2, self.posicion_cuna3, self.posicion_cuna4, self.posicion_cuna5, self.posicion_up_piezas_robot, self.posicion_pieza_robot, 'open', self.posicion_up_piezas_robot,self.posicion_camara_piezas_robot) #, self.posicion_intermedia,self.posicion_camara_tablero)
+            
+            
+            #trayectoria_jugada_robar = ('open', self.posicion_camara_tablero_robar,'open')
 
             return trayectoria_jugada_robar
             
@@ -372,7 +414,8 @@ class jugada:
         
         if(self.flag_elegir_posicion == True):
             self.iterador_pieza_nueva=i
-            print("Pongo la ficha en la posicion " + str(i+1) + " "  + str(self.valores_piezas))
+            rospy.loginfo(f"{self.node_name }: Pongo la ficha en la posicion {i+1}")
+            #print("Pongo la ficha en la posicion " + str(i+1) + " "  + str(self.valores_piezas))
             #print(self.valores_piezas)
             return self.posiciones_piezas_robot[i]
             
