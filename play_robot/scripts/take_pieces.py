@@ -49,7 +49,7 @@ class pieces:
         
         self.subscriber_jugada = rospy.Subscriber('/play_robot/jugada/finish', Bool, self.jugada_callback, queue_size=1)  
         
-                
+        self.subscriber_turn = rospy.Subscriber('/play_robot/turn', String, self.turn_callback, queue_size=1)       
         #self.subscriber_posicion_piezas_vision = rospy.Subscriber('/vision/posicion_piezas', String, self.posicion_piezas_callback, queue_size=1)
         
         #info de la pos de la pieza
@@ -125,7 +125,7 @@ class pieces:
         
     def init_callback(self, data):
         self.init=data.data
-        
+        #print(self.init)
         if(self.init == "init" or self.init == "init"):
             self.trayectoria_jugada = ("open",self.posicion_camara)
             #para que empiece el movimiento:
@@ -140,7 +140,13 @@ class pieces:
             
             
             
-            
+    def turn_callback(self, data):
+        global contador_piezas
+        global contador_movimientos
+        
+        if(data.data == "victoria_jugador" or data.data == "VICTORIA_JUGADOR"):
+            contador_piezas = 0    
+            contador_movimientos = 0   
             
             
             
@@ -181,7 +187,7 @@ class pieces:
                         
                         self.publisher_finish_go_to_pose.publish(True)
                         
-
+                        #print("Subo una pieza")
                         contador_piezas = contador_piezas+1
                         
                         
@@ -192,13 +198,14 @@ class pieces:
                        
                        
                 else:
+                    print("Publicado el final de la recogida")
                     self.publisher_init.publish("finish")
                     #print("Mensaje a publicar:")
                     #print(self.valores_piezas_robot_send)
                     #self.publisher_valores_piezas.publish(self.valores_piezas_robot_send)
                     contador=0
         else:
-            rospy.loginfo(f"{self.node_name }: Finalizada la recogida de la pieza")
+            rospy.loginfo(f"{self.node_name }: Finalizada la recogida de las piezas")
             #print("Finalizada la recogida de la pieza")
             #print(str(self.valores_piezas))
             
@@ -230,7 +237,7 @@ class pieces:
         self.posicion_pieza= self.create_twist(data.data)
         #print(self.posicion_pieza)
         self.pieza_detectada = True
-            
+        #print("Llamo a jugada")
         self.publisher_jugada.publish(True)
 	
 	
@@ -245,7 +252,7 @@ class pieces:
         global contador_piezas
         if (self.init == 'init' or self.init == 'INIT'):
             if(contador_movimientos< len(self.trayectoria_jugada)):
-                if (data.data == True and self.trayectoria_jugada !=None): #cambio aqui
+                if (data.data == True): #cambio aqui  and self.trayectoria_jugada !=None
                         #print (contador)
                             
                         if(isinstance(self.trayectoria_jugada[contador_movimientos], str)): #si es open o close
@@ -253,9 +260,15 @@ class pieces:
                                 self.publisher_gripper.publish("open")
                                 #print("open")
                             elif(str(self.trayectoria_jugada[contador_movimientos]) == "acabo_recogida"):
-                                #contador_piezas = contador_piezas+1
+                                
                                 self.publisher_finish_go_to_pose.publish(True)
-                                print("Recogí pieza")
+                                print("Recogí todas las piezas")
+                            elif(str(self.trayectoria_jugada[contador_movimientos]) == "acabo_jugada"):
+                                #self.publisher_take_piece.publish(True)
+                                #self.publisher_finish_go_to_pose.publish(True)
+                                self.publisher_finish_go_to_pose.publish(True)
+                                print("Recogí una pieza")
+
                             else:
                                 self.publisher_gripper.publish("close")
                                 #print("close")

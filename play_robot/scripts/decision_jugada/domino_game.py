@@ -24,7 +24,7 @@ def masCercanos(pieza_elegida, piezas, orden):
     
         Args:
             pieza_elegida:  pieza respecto a la que se calculan las distancias del resto de piezas.
-            piezas (List[pieza_sencilla] o List[Piece]): array de piezas de las cuales se van a calcular las distancias. 
+            piezas (List[piezasencilla] o List[Piece]): array de piezas de las cuales se van a calcular las distancias. 
             orden:  orden de la norma para calcular las distancias.
         Returns:
             indices_orden:  indices de las piezas ordenadas de menor a mayor distancia.
@@ -43,8 +43,8 @@ def numeroComun(pieza1, pieza2):
     """Numero en comun entre las piezas (sencillas).
     
         Args:
-            pieza1 (pieza_sencilla).
-            pieza2 (pieza_sencilla).
+            pieza1 (piezasencilla).
+            pieza2 (piezasencilla).
         Returns:
             numero_comun: numero comun a las piezas. -1 si no existe.
     """
@@ -64,10 +64,10 @@ def numeroDiferenteExtremo(pieza_extremo, pieza_interior):
     Para ello, compara los numeros iguales de las piezas, y devuelve el numero contrario, en la pieza del extremo.
     
         Args:
-            pieza_extremo (pieza_sencilla).
-            pieza_interior (pieza_sencilla).
+            pieza_extremo (PiezaSencilla).
+            pieza_interior (PiezaSencilla).
         Returns:
-            numero_diferente_extremo: numero no comun en las pieza del extremo. -1 si hay algun error raro y todos los numeros son distintos.
+            numero_diferente_extremo: numero no comun en la pieza del extremo. -1 si hay algun error raro y todos los numeros son distintos.
     """
     if pieza_extremo.v1 == pieza_interior.v1:
         return pieza_extremo.v2
@@ -84,13 +84,13 @@ def extremosTablero(tablero):
     """Devuelve los numeros de los extremos del tablero, es decir, los numeros en los que hay que poner la pieza.
     
         Args:
-            tablero (List[pieza_sencilla]): tablero ordenado de piezas.
+            tablero (List[piezasencilla]): tablero ordenado de piezas.
         Returns:
             [numero_extremo_1, numero_extremo_2].
     """
     if len(tablero) == 0:
         return []
-    elif len(tablero) == 1: # en teoria siempre deberia ser doble pero bueeeno
+    elif len(tablero) == 1: # en teoria siempre deberia ser doble pero bueno
         if tablero[0].esDoble():
             return [tablero[0].v1, tablero[0].v1]
         else:
@@ -105,11 +105,11 @@ def jugadasDisponibles(tablero, piezas_robot):
     """Calcula todas las posibles piezas que el robot podria poner en cada extremo del tablero.
     
         Args:
-            tablero (List[pieza_sencilla]): tablero ordenado de piezas.
-            piezas_robot (List[pieza_sencilla]): piezas disponibles.
+            tablero (List[piezasencilla]): tablero ordenado de piezas.
+            piezas_robot (List[piezasencilla]): piezas disponibles.
         Returns:
-            posibles_jugadas_1 (List[pieza_sencilla]): piezas que podria poner en el primer extremo del tablero.
-            posibles_jugadas_2 (List[pieza_sencilla]): piezas que podria poner en el segundo extremo del tablero.
+            posibles_jugadas_1 (List[piezasencilla]): piezas que podria poner en el primer extremo del tablero.
+            posibles_jugadas_2 (List[piezasencilla]): piezas que podria poner en el segundo extremo del tablero.
     """
     extremos = extremosTablero(tablero)
 
@@ -132,12 +132,12 @@ def clasificarPiezas(piezas, alto_imagen, alto_zona_robot):
     """Esto lo uso para hacer algun test. Divide las piezas que hay arriba y las que hay abajo en dos, siendo las de arriba el tablero, y las de abajo las disponibles.
     
         Args:
-            piezas (List[pieza_sencilla]): piezas.
+            piezas (List[piezasencilla]): piezas.
             alto_imagen: alto (no necesariamente en pixeles de la imagen.
             alto_zona_robot: cuanto de la parte de abajo de la imagen son piezas disponibles.
         Returns:
-            piezas_tablero (List[pieza_sencilla]): piezas del tablero.
-            piezas_robot (List[pieza_sencilla]): piezas disponibles para el robot.
+            piezas_tablero (List[piezasencilla]): piezas del tablero.
+            piezas_robot (List[piezasencilla]): piezas disponibles para el robot.
     """
     piezas_tablero= [] 
     piezas_robot = []
@@ -164,11 +164,11 @@ def tableroVirtual(piezas, umbral_dist, orden):
     La primera pieza siempre es la del extremo superior (o izquierdo).
     
         Args:
-            piezas (List[pieza_sencilla]): piezas.
+            piezas (List[piezasencilla]): piezas.
             umbral_dist: valor que indica cuanto de cerca tienen que estar los centros de las piezas para considerarse contiguas.
             orden:  orden de la norma para calcular las distancias.
         Returns:
-            tablero (List[pieza_sencilla]): piezas ordenadas del tablero.
+            tablero (List[piezasencilla]): piezas ordenadas del tablero.
     """
     if len(piezas) == 1:
         return piezas
@@ -218,10 +218,10 @@ def decidirMovimiento(tablero, piezas_robot): # aqui viene toda la IA :)
     De momento, intenta usar la pieza de mayor valor posible.
     
         Args:
-            tablero (List[pieza_sencilla]):     piezas ordenadas del tablero. La primera pieza siempre es la del extremo superior (o izquierdo).
-            piezas_robot(List[pieza_sencilla]): piezas disponibles para el robot.
+            tablero (List[piezasencilla]):     piezas ordenadas del tablero. La primera pieza siempre es la del extremo superior (o izquierdo).
+            piezas_robot(List[piezasencilla]): piezas disponibles para el robot.
         Returns:
-            movimientos (Dictionary): conjunto de ordenes que hay que jugar. Los valores son:
+            accion (Dictionary): conjunto de ordenes que hay que jugar. Los valores son:
             -Comunes:
                 'movimiento':       'jugada' si debe colocar una pieza. 'robar' si no hay pieza que pueda ser jugada.
             -Si movimientos['movimiento'] = 'jugada'

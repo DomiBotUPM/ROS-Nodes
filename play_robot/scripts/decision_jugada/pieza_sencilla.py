@@ -37,7 +37,7 @@ class PiezaSencilla:
         Returns:
             bool: True: es vertical. False: es horizontal.
         """
-        if abs(self.angle - 45) < 45:
+        if abs(self.angle - 90) < 45:
             return True
         else:
             return False

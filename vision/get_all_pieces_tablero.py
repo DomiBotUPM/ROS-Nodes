@@ -45,7 +45,10 @@ class valores_piezas_tablero:
         capture = cv.VideoCapture(canal)
         ret, frame = capture.read()
         size = frame.shape[0]*frame.shape[1]
-        detections = self.domino_vision.pieces_detection(frame, size)
+        width_game = 218
+        height_game = 290
+        area_game = width_game*height_game
+        detections = self.domino_vision.pieces_detection(frame, size, size_mm=area_game) #, size_mm=area_game
         recognitions =  self.domino_vision.pieces_recognition(frame, size, pieces=detections)
 
         recognitions2 = self.domino_vision.ordenar_piezas(recognitions)
@@ -54,12 +57,14 @@ class valores_piezas_tablero:
         contador=0
         
         for pieza in recognitions2:
-            posicion_pieza = conversionCoordenadasJuego(pieza.center_mm[0], pieza.center_mm[1], pieza.angle)
+            #hace la conversión la parte de lógica, mejor mandarle las posiciones respecto a la camara
+            '''posicion_pieza = conversionCoordenadasJuego(pieza.center_mm[0], pieza.center_mm[1], pieza.angle)
             posicion_pieza[0] = round(posicion_pieza[0]/1000,4) # paso a mm
             posicion_pieza[1] = round(posicion_pieza[1]/1000,4)
             
-            #print([pieza.center[0], pieza.center[1], pieza.angle, pieza.dots[0], pieza.dots[1]]) round(pieza.center[0]/1000,4)
-            array = [posicion_pieza[0], posicion_pieza[1], pieza.angle, pieza.dots[0], pieza.dots[1]]
+            
+            array = [posicion_pieza[0], posicion_pieza[1], pieza.angle, pieza.dots[0], pieza.dots[1]]'''
+            array = [pieza.center_mm[0], pieza.center_mm[1], pieza.angle, pieza.dots[0], pieza.dots[1]]
             valores_piezas.extend(array)
 
 
