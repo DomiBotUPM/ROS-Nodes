@@ -72,8 +72,8 @@ class valores_piezas_robot:
         #para coger todas:
         for pieza in recognitions:
             posicion_pieza = conversionCoordenadasJuego(pieza.center_mm[0], pieza.center_mm[1], pieza.angle)
-            posicion_pieza[0] = round((posicion_pieza[0]-10)/1000,4) # paso a mm
-            posicion_pieza[1] = round((posicion_pieza[1]+3)/1000,4)
+            posicion_pieza[0] = round((posicion_pieza[0])/1000,4) # paso a mm
+            posicion_pieza[1] = round((posicion_pieza[1])/1000,4)
             valores_piezas.extend(posicion_pieza)
             if len(pieza.dots) == 2:
                 valores_piezas.extend([pieza.dots[0], pieza.dots[1]])
@@ -84,13 +84,24 @@ class valores_piezas_robot:
         #para publicar solo la posicion de la primera pieza :
         # angulo 90 - -3.139, -0.001, 0.377
         # angulo 0 - 3.089, -0.015, -1.214
+        
+        
+        if (abs(valores_piezas[2]) < 45 or abs(valores_piezas[2]) > 135):
+            valores_piezas[2] = 90
+        else:
+            valores_piezas[2] = 0
+        
+        print(f"angulo: {valores_piezas[2]}")
+            
         if(valores_piezas[2] == 0): #perfecto
+            
             rx=3.089
             ry=-0.015
             rz=-1.214
         elif(valores_piezas[2] == 90): #perfecto
             #valores_piezas[0]
-            valores_piezas[1]-=0.02
+            valores_piezas[0]+=0.005
+            valores_piezas[1]-=0.01
             rx=-3.139
             ry=-0.001
             rz=0.377

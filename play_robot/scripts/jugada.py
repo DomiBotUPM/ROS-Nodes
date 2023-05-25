@@ -155,11 +155,16 @@ class jugada:
     # actuar cuando es el turno del robot        
     def turn_callback(self, data):
         global turno
+        global contador
         turno = data.data
         #es el turno del robot -  hace una foto al tablero y evalua la logica
         if(data.data == "robot" or data.data == "ROBOT"):
             self.publisher_obtain_all_pieces_tablero.publish(True)
             rospy.loginfo(f"{self.node_name }: Esperando al reconocimiento de piezas")
+        elif(data.data == "victoria_jugador" or data.data == "VICTORIA_JUGADOR"):
+            contador = 0
+            self.contador_piezas_robot = 0
+            rospy.loginfo(f"{self.node_name }: Enhorabuena jugador!")
             #print("Esperando al reconocimiento de piezas")
             '''if(self.pieza_detectada == True): ## Tener cuidado aqui, controlar bien la publicacion de la posicion de la vision y luego empezar la jugada
         
@@ -170,7 +175,7 @@ class jugada:
                 
                 self.publisher_finish_go_to_pose.publish(True)
 
-                
+               
                 
             else:
                 print("Falta detectar pieza")'''
@@ -349,14 +354,26 @@ class jugada:
             
             ##evaluar el ang_dest
             
-            rospy.loginfo(f"{self.node_name }: La ficha {ficha_robot+1} la pongo en la posicion {x_dest}, {y_dest}")
-            
+            rospy.loginfo(f"{self.node_name }: La ficha {ficha_robot+1} la pongo en la posicion {x_dest}, {y_dest}, {ang_dest} ")
+            rx= -3.138
+            ry=-0.001
+            if(int(ang_dest) == 0):
+                rz=0.376
+            elif(int(ang_dest) == 90):
+                rz=-1.287
+            elif(int(ang_dest) == 180):
+                rz=-2.772
+            elif(int(ang_dest) == 270):   
+                rz=1.941
+            else:
+                rz=0.376
             # se quita la ficha de la lista
             self.valores_piezas[ficha_robot][0]= False
             self.contador_piezas_robot = self.contador_piezas_robot - 1
             
             #donde colocar la pieza
-            self.posicion_pieza_jugar = self.create_twist([x_dest, y_dest, 0.173, -3.141, -0.06, -1.161])
+            #self.posicion_pieza_jugar = self.create_twist([x_dest, y_dest, 0.173, -3.141, -0.06, -1.161])
+            self.posicion_pieza_jugar = self.create_twist([x_dest, y_dest, 0.17, rx, ry, rz])
             
             array_posicion_pieza_jugar_mas_alto=[self.posicion_pieza_jugar.linear.x, self.posicion_pieza_jugar.linear.y, self.posicion_pieza_jugar.linear.z+0.05, self.posicion_pieza_jugar.angular.x, self.posicion_pieza_jugar.angular.y, self.posicion_pieza_jugar.angular.z]
             
@@ -375,8 +392,8 @@ class jugada:
             self.posicion_pieza_robot = self.elegir_posicion_pieza_robot() #nuevo aqui
             
             self.tipo_jugada = "robar_pieza"
-            
-            self.posicion_pieza_robar = self.create_twist([0.264, 0.346, 0.173, 3.089, -0.015, -1.214])
+            #origincales0.264, 0.346 // 0.362, 0.396
+            self.posicion_pieza_robar = self.create_twist([0.264, 0.397, 0.173, 3.089, -0.015, -1.214])
             
             array_posicion_pieza_robar_mas_alto=[self.posicion_pieza_robar.linear.x, self.posicion_pieza_robar.linear.y, self.posicion_pieza_robar.linear.z+0.05, self.posicion_pieza_robar.angular.x, self.posicion_pieza_robar.angular.y, self.posicion_pieza_robar.angular.z]
                 
